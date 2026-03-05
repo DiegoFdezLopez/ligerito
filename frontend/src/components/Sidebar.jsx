@@ -2,8 +2,6 @@ import React, { useState } from 'react'; // Faltaba el useState
 
 export default function Sidebar({ inventario = [], onAñadir }) {
   const [busqueda, setBusqueda] = useState("");
-  const [nuevoNombre, setNuevoNombre] = useState("");
-  const [nuevoPeso, setNuevoPeso] = useState("");
 
   const listasViajes = [
     { id: 1, nombre: "Viaje a Japón", peso: "6.2kg" },
@@ -11,7 +9,6 @@ export default function Sidebar({ inventario = [], onAñadir }) {
     { id: 3, nombre: "Fin de semana Lisboa", peso: "4.1kg" }
   ];
 
-  // Filtramos el inventario que viene por props
   const filtrados = inventario.filter(item =>
     item.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
