@@ -4,16 +4,15 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ResumenPesos from './components/ResumenPesos';
 import ListaCategorias from './components/ListaCategorias';
-import Login from './pages/login';
-
+import Login from './pages/login'; 
+import Registro from './pages/Registro';// Asegúrate de que el archivo se llame registro.jsx
 
 function App() {
-  // --- 1. CONTROL DE ACCESO (SIMPLIFICADO) ---
-  // Cambia a 'false' para probar la pantalla de Login
-  // Cambia a 'true' para trabajar directamente en el Dashboard
-  const [estaLogueado, setEstaLogueado] = useState(true);
+  // --- 1. CONTROL DE NAVEGACIÓN ---
+  // Valores posibles: "login", "registro", "principal"
+  const [pantallaActual, setPantallaActual] = useState("principal");
 
-  // --- 2. ESTADOS DE DATOS (CON PERSISTENCIA DE CONTENIDO) ---
+  // --- 2. ESTADOS DE DATOS ---
   const [listas, setListas] = useState(() => {
     const guardado = localStorage.getItem("ligerito_listas");
     return guardado ? JSON.parse(guardado) : [{ id: '1', nombre: "Mochila Base", objetos: [] }];
@@ -26,7 +25,7 @@ function App() {
     return guardado ? JSON.parse(guardado) : [];
   });
 
-  // --- 3. PERSISTENCIA DE CONTENIDO (Mochilas e Inventario) ---
+  // --- 3. PERSISTENCIA ---
   useEffect(() => {
     localStorage.setItem("ligerito_listas", JSON.stringify(listas));
   }, [listas]);
@@ -52,22 +51,12 @@ function App() {
   };
 
   const manejarNuevoItem = (datos) => {
-    const nuevoItem = { 
-      ...datos, 
-      id: Date.now(), 
-      cant: datos.cant || 1, 
-      desc: datos.desc || "" 
-    };
-
+    const nuevoItem = { ...datos, id: Date.now(), cant: datos.cant || 1, desc: datos.desc || "" };
     setListas(listas.map(l => {
-      if (l.id === idListaActiva) {
-        return { ...l, objetos: [...l.objetos, nuevoItem] };
-      }
+      if (l.id === idListaActiva) return { ...l, objetos: [...l.objetos, nuevoItem] };
       return l;
     }));
-
-    const existe = inventarioGeneral.some(i => i.nombre.toLowerCase() === datos.nombre.toLowerCase());
-    if (!existe) {
+    if (!inventarioGeneral.some(i => i.nombre.toLowerCase() === datos.nombre.toLowerCase())) {
       const { cant, ...itemArmario } = nuevoItem;
       setInventarioGeneral([...inventarioGeneral, itemArmario]);
     }
@@ -87,22 +76,30 @@ function App() {
 
   const eliminarObjeto = (id) => {
     setListas(listas.map(l => {
-      if (l.id === idListaActiva) {
-        return { ...l, objetos: l.objetos.filter(obj => obj.id !== id) };
-      }
+      if (l.id === idListaActiva) return { ...l, objetos: l.objetos.filter(obj => obj.id !== id) };
       return l;
     }));
   };
 
   // --- 5. RENDERIZADO CONDICIONAL ---
-  
-  if (!estaLogueado) {
-    return <Login onLogin={() => setEstaLogueado(true)} />;
+
+  if (pantallaActual === "login") {
+    return <Login 
+      onLogin={() => setPantallaActual("principal")} 
+      onIrARegistro={() => setPantallaActual("registro")} 
+    />;
   }
 
+  if (pantallaActual === "registro") {
+    return <Registro 
+      onRegistro={() => setPantallaActual("principal")} 
+      onIrALogin={() => setPantallaActual("login")} 
+    />;
+  }
+
+  // Si no es login ni registro, mostramos la pantalla principal
   return (
-    <div className="flex h-screen bg-[#D9E9CF] overflow-hidden text-slate-900 font-sans">
-      
+    <div className="flex h-screen bg-[#ffffff] overflow-hidden text-slate-900 font-sans">
       <Sidebar 
         listas={listas}
         idListaActiva={idListaActiva}
@@ -116,19 +113,17 @@ function App() {
       <div className="flex-1 flex flex-col overflow-y-auto">
         <Header 
           nombreMochila={mochilaActiva.nombre} 
-          onLogout={() => setEstaLogueado(false)}
+          onLogout={() => setPantallaActual("login")}
         />
 
         <main className="p-8 max-w-4xl mx-auto w-full">
           <ResumenPesos listaDeObjetos={mochilaActiva.objetos} />
-          
           <ListaCategorias
             listaDeObjetos={mochilaActiva.objetos}
             onCambiarCantidad={cambiarCantidad}
             onEliminar={eliminarObjeto}
             onNuevoItem={manejarNuevoItem} 
           />
-
           <footer className="mt-10 py-6 border-t border-slate-300 text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest">
             © 2026 Ligerito - Control de peso para viajes
           </footer>

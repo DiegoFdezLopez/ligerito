@@ -42,7 +42,7 @@ export default function Sidebar({
       {/* --- 2. SECCIÓN: MIS LISTAS --- */}
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-3 px-2">
-          <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mis Listas</h2>
+          <h2 className="text-[10px] font-bold text-grey uppercase tracking-widest">Mis Listas</h2>
           <button 
             onClick={() => setMostrandoInputNuevaLista(!mostrandoInputNuevaLista)} 
             className="cursor-pointer text-slate-400 hover:text-slate-800 transition-colors"
