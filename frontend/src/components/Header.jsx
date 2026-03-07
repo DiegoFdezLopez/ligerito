@@ -1,54 +1,31 @@
 import React from 'react';
 
-export default function Header({ nombreMochila, onLogout }) {
+export default function Header({ nombreMochila, esPublica, onTogglePublica, onActualizarNombre, onLogout, onIrAExplorar }) {
   return (
-    <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-10 shrink-0">
-      
-      {/* 1. Título dinámico de la mochila activa */}
-      <div>
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-0.5">
-          Mochila Seleccionada
-        </div>
-        <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-          {nombreMochila}
-        </h2>
+    <header className="h-16 bg-slate-50/50 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10 shrink-0 shadow-sm">
+      <div className="flex flex-col min-w-0">
+        <div className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Mochila Seleccionada</div>
+        <input type="text" aria-label="Editar nombre de mochila" value={nombreMochila} onChange={(e) => onActualizarNombre(e.target.value)} className="text-xl font-black text-slate-800 bg-transparent border-none outline-none focus:ring-0 p-0 w-full hover:bg-white/50 transition-colors rounded" />
       </div>
 
-      {/* 2. Acciones y Perfil */}
-      <div className="flex items-center gap-4">
-        
-        {/* Botones de acción rápidos */}
-        <div className="flex items-center border-r border-slate-100 pr-4 gap-1">
-          <button className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all cursor-pointer" title="Compartir lista">
-            <span className="material-symbols-outlined text-2xl">share</span>
-          </button>
-          <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer" title="Ajustes">
-            <span className="material-symbols-outlined text-2xl">settings</span>
-          </button>
-        </div>
-        
-        {/* Bloque de Usuario y Logout */}
-        <div className="flex items-center gap-3 pl-2">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-slate-800 leading-none">Diego User</p>
-            <button 
-              onClick={onLogout}
-              className="text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors cursor-pointer uppercase tracking-wider"
-            >
-              Cerrar Sesión
-            </button>
-          </div>
+      <div className="flex items-center gap-3">
+        <button onClick={onTogglePublica} aria-label={esPublica ? "Hacer privada" : "Hacer pública"} className={`px-2 py-1 rounded-md border text-[9px] font-bold uppercase transition-all cursor-pointer ${esPublica ? 'bg-blue-50 border-blue-200 text-blue-600 shadow-sm' : 'bg-white border-slate-300 text-slate-400'}`}>
+          {esPublica ? 'Pública' : 'Privada'}
+        </button>
 
-          {/* Avatar con iniciales o imagen */}
-          <div className="h-10 w-10 rounded-xl overflow-hidden border-2 border-white shadow-md ring-1 ring-slate-100">
-            <img
-              alt="Profile"
-              className="w-full h-full object-cover"
-              src="https://ui-avatars.com/api/?name=Diego+User&background=1e293b&color=fff" 
-            />
-          </div>
+        <div className="flex items-center bg-slate-200/50 rounded-lg p-0.5 border border-slate-200">
+          <button onClick={onIrAExplorar} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-white rounded-md transition-all cursor-pointer" aria-label="Explorar Comunidad"><span className="material-symbols-outlined text-xl">explore</span></button>
+          <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-white rounded-md transition-all cursor-pointer" aria-label="Descargar PDF"><span className="material-symbols-outlined text-xl">picture_as_pdf</span></button>
+          <button className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-all cursor-pointer" aria-label="Configuración"><span className="material-symbols-outlined text-xl">settings</span></button>
         </div>
 
+        <div className="flex items-center gap-3 pl-3 border-l border-slate-300">
+          <div className="text-right hidden sm:block leading-none">
+            <p className="text-[12px] font-bold text-slate-800 mb-0.5">Diego User</p>
+            <button onClick={onLogout} className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase cursor-pointer">Cerrar Sesión</button>
+          </div>
+          <div className="h-8 w-8 rounded-lg overflow-hidden border border-slate-300 shadow-sm"><img alt="Perfil" className="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Diego+User&background=1e293b&color=fff" /></div>
+        </div>
       </div>
     </header>
   );
