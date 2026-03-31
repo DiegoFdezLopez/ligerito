@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 
-// Datos iniciales fuera para que sea más limpio
+//Datos iniciales fuera para que sea más limpio
+//Si localStorage esta vacio se mete como opcion (??)una mochilaBase vacia 
 const inicialMochilas = JSON.parse(localStorage.getItem('ligerito_listas')) ?? [
   { id: '1', nombre: "Mochila Base", objetos: [], publica: false }
 ];
+//json.parse convertir array en un string para localStorage
 const inicialArmario = JSON.parse(localStorage.getItem('ligerito_armario')) ?? [];
 
 export const useMochilas = () => {
   const [listas, setListas] = useState(inicialMochilas);
   const [inventarioGeneral, setInventarioGeneral] = useState(inicialArmario);
+  //se evita el nullpointerexception si no hay nada en la posicion 0.
+  //izqd null,undefined o falso -> id = 1
   const [idListaActiva, setIdListaActiva] = useState(listas[0]?.id || '1');
 
   // Persistencia automática
+  // JSON.stringify: Es el Marshalling (de Objeto a Texto).
   useEffect(() => {
     localStorage.setItem('ligerito_listas', JSON.stringify(listas));
   }, [listas]);
@@ -20,6 +25,8 @@ export const useMochilas = () => {
     localStorage.setItem('ligerito_armario', JSON.stringify(inventarioGeneral));
   }, [inventarioGeneral]);
 
+  //si cambia lista o el id, mochilaActiva se recalcula sola.
+  //con el idListaActiva se guarda el contenido en la mochilaActiva.
   const mochilaActiva = listas.find(l => l.id === idListaActiva) || listas[0];
 
   // --- FUNCIONES DE LÓGICA ---
