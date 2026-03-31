@@ -10,10 +10,9 @@ import { useMochilas } from './hooks/useMochilas';
 
 function App() {
   const [pantallaActual, setPantallaActual] = useState("principal");
-  const [categorias, setCategorias] = useState(["Ropa", "Electrónica", "Cocina", "Refugio"]);
 
-  // Extraemos todo del hook
-  const {
+  // Extraemos todo del hook (incluyendo las nuevas de categorías)
+const {
     listas,
     mochilaActiva,
     idListaActiva,
@@ -25,20 +24,15 @@ function App() {
     togglePublica,
     manejarNuevoItem,
     cambiarCantidad,
-    eliminarObjeto
+    eliminarObjeto,
+    añadirCategoria,    // <--- Viene del Hook
+    eliminarCategoria   // <--- Viene del Hook (Asegúrate de extraerla aquí)
   } = useMochilas();
-
-  const añadirCategoria = (nombre) => {
-    if (!categorias.includes(nombre)) setCategorias([...categorias, nombre]);
-  };
-
-  const eliminarCategoria = (nombre) => {
-    setCategorias(categorias.filter(c => c !== nombre));
-  };
 
   if (pantallaActual === "login") return <Login onLogin={() => setPantallaActual("principal")} onIrARegistro={() => setPantallaActual("registro")} />;
   if (pantallaActual === "registro") return <Registro onRegistro={() => setPantallaActual("principal")} onIrALogin={() => setPantallaActual("login")} />;
 
+  console.log(mochilaActiva)
   return (
     <div className="flex h-screen bg-white overflow-hidden text-slate-900 font-sans">
       <Sidebar 
@@ -64,10 +58,14 @@ function App() {
               onIrAExplorar={() => setPantallaActual("explorar")}
             />
             <main className="p-6 max-w-4xl mx-auto w-full">
-              <ResumenPesos listaDeObjetos={mochilaActiva.objetos} />
+              {/* Ahora las categorías vienen de mochilaActiva, si borras la mochila, vienen vacías [] */}
+              <ResumenPesos 
+                listaDeObjetos={mochilaActiva.objetos} 
+                categorias={mochilaActiva.categorias || []} 
+              />
               <ListaCategorias 
                 listaDeObjetos={mochilaActiva.objetos} 
-                categorias={categorias} 
+                categorias={mochilaActiva.categorias || []} 
                 onAñadirCategoria={añadirCategoria}
                 onEliminarCategoria={eliminarCategoria}
                 onCambiarCantidad={cambiarCantidad} 
