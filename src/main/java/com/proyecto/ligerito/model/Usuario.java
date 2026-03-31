@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- ESTA ES LA CLAVE
 import java.util.List;
 
 @Entity
@@ -21,5 +22,6 @@ public class Usuario {
     private String password;
 
     @OneToMany(mappedBy = "usuario")
+    @JsonIgnore // <--- Esto corta el bucle infinito
     private List<Mochila> mochilas;
 }
