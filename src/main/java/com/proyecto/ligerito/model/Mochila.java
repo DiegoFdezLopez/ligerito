@@ -29,15 +29,9 @@ public class Mochila {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String nombre;
-
     private String descripcion;
-
-    @Column(name = "es_publica")
     private boolean esPublica;
-
-    @Column(name = "peso_total")
     private int pesoTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
