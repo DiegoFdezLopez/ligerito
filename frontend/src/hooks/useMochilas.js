@@ -15,14 +15,15 @@ const inicialMochilas = JSON.parse(localStorage.getItem("ligerito_listas")) ?? [
   },
 ];
 
-const inicialArmario = JSON.parse(localStorage.getItem("ligerito_armario")) ?? [];
+const inicialArmario =
+  JSON.parse(localStorage.getItem("ligerito_armario")) ?? [];
 
 export const useMochilas = () => {
   const [listas, setListas] = useState(inicialMochilas);
   const [inventarioGeneral, setInventarioGeneral] = useState(inicialArmario);
 
   const [idListaActiva, setIdListaActiva] = useState(
-    listas.length > 0 ? listas[0].id : null
+    listas.length > 0 ? listas[0].id : null,
   );
 
   // Persistencia automática
@@ -69,13 +70,17 @@ export const useMochilas = () => {
 
   const actualizarNombreLista = (nuevoNombre) => {
     setListas((prev) =>
-      prev.map((l) => (l.id === idListaActiva ? { ...l, nombre: nuevoNombre } : l))
+      prev.map((l) =>
+        l.id === idListaActiva ? { ...l, nombre: nuevoNombre } : l,
+      ),
     );
   };
 
   const togglePublica = () => {
     setListas((prev) =>
-      prev.map((l) => (l.id === idListaActiva ? { ...l, publica: !l.publica } : l))
+      prev.map((l) =>
+        l.id === idListaActiva ? { ...l, publica: !l.publica } : l,
+      ),
     );
   };
 
@@ -90,7 +95,7 @@ export const useMochilas = () => {
         const existe = l.objetos.some(
           (obj) =>
             obj.nombre.toLowerCase() === datos.nombre.toLowerCase() &&
-            obj.categoria === datos.categoria
+            obj.categoria === datos.categoria,
         );
 
         if (existe) {
@@ -100,20 +105,20 @@ export const useMochilas = () => {
               obj.nombre.toLowerCase() === datos.nombre.toLowerCase() &&
               obj.categoria === datos.categoria
                 ? { ...obj, cant: obj.cant + 1 }
-                : obj
+                : obj,
             ),
           };
         }
 
         const nuevo = { ...datos, id: uid(), cant: 1 };
         return { ...l, objetos: [...l.objetos, nuevo] };
-      })
+      }),
     );
 
     // 2) Añadir al armario si no existe (por nombre)
     setInventarioGeneral((prevInv) => {
       const yaExiste = prevInv.some(
-        (i) => i.nombre.toLowerCase() === datos.nombre.toLowerCase()
+        (i) => i.nombre.toLowerCase() === datos.nombre.toLowerCase(),
       );
       if (yaExiste) return prevInv;
 
@@ -129,7 +134,7 @@ export const useMochilas = () => {
           .map((o) => (o.id === id ? { ...o, cant: o.cant + incremento } : o))
           .filter((o) => o.cant > 0);
         return { ...l, objetos: nuevos };
-      })
+      }),
     );
   };
 
@@ -138,10 +143,31 @@ export const useMochilas = () => {
       prev.map((l) =>
         l.id === idListaActiva
           ? { ...l, objetos: l.objetos.filter((o) => o.id !== id) }
-          : l
-      )
+          : l,
+      ),
     );
   };
+
+const eliminarItemInventario = (idArmario) => {
+  // Buscar el item en el inventario para obtener su nombre
+  const item = inventarioGeneral.find((i) => i.id === idArmario);
+  const nombreKey = (item?.nombre ?? "").toLowerCase().trim();
+
+  // 1) Eliminar del inventario general
+  setInventarioGeneral((prev) => prev.filter((i) => i.id !== idArmario));
+
+  // 2) Eliminar de TODAS las listas donde exista (por nombre)
+  if (!nombreKey) return;
+
+  setListas((prev) =>
+    prev.map((l) => ({
+      ...l,
+      objetos: l.objetos.filter(
+        (o) => (o.nombre ?? "").toLowerCase().trim() !== nombreKey
+      ),
+    }))
+  );
+};
 
   const añadirCategoria = (nombreCat) => {
     if (!idListaActiva) return;
@@ -152,7 +178,7 @@ export const useMochilas = () => {
         const cats = l.categorias || [];
         if (cats.includes(nombreCat)) return l;
         return { ...l, categorias: [...cats, nombreCat] };
-      })
+      }),
     );
   };
 
@@ -162,9 +188,12 @@ export const useMochilas = () => {
     setListas((prev) =>
       prev.map((l) =>
         l.id === idListaActiva
-          ? { ...l, categorias: (l.categorias || []).filter((c) => c !== nombre) }
-          : l
-      )
+          ? {
+              ...l,
+              categorias: (l.categorias || []).filter((c) => c !== nombre),
+            }
+          : l,
+      ),
     );
   };
 
@@ -175,10 +204,10 @@ export const useMochilas = () => {
         return {
           ...l,
           objetos: l.objetos.map((obj) =>
-            obj.id === idItem ? { ...obj, enlace: nuevoEnlace } : obj
+            obj.id === idItem ? { ...obj, enlace: nuevoEnlace } : obj,
           ),
         };
-      })
+      }),
     );
   };
 
@@ -194,10 +223,10 @@ export const useMochilas = () => {
         return {
           ...l,
           objetos: l.objetos.map((obj) =>
-            obj.id === idItem ? { ...obj, peso: pesoNum } : obj
+            obj.id === idItem ? { ...obj, peso: pesoNum } : obj,
           ),
         };
-      })
+      }),
     );
 
     // 2) Actualiza en el armario (por nombre)
@@ -207,27 +236,57 @@ export const useMochilas = () => {
 
     setInventarioGeneral((prevInv) =>
       prevInv.map((i) =>
-        i.nombre.toLowerCase() === nombreKey ? { ...i, peso: pesoNum } : i
-      )
+        i.nombre.toLowerCase() === nombreKey ? { ...i, peso: pesoNum } : i,
+      ),
     );
   };
 
+  const actualizarDescItem = (idItem, nuevaDesc) => {
+  const desc = (nuevaDesc ?? "").toString();
+
+  // 1) Actualiza en la mochila activa
+  setListas((prev) =>
+    prev.map((l) => {
+      if (l.id !== idListaActiva) return l;
+      return {
+        ...l,
+        objetos: l.objetos.map((obj) =>
+          obj.id === idItem ? { ...obj, desc } : obj
+        ),
+      };
+    })
+  );
+
+  // 2) Actualiza en el armario (por nombre)
+  const objActual = mochilaActiva.objetos.find((o) => o.id === idItem);
+  const nombreKey = (objActual?.nombre ?? "").toLowerCase().trim();
+  if (!nombreKey) return;
+
+  setInventarioGeneral((prevInv) =>
+    prevInv.map((i) =>
+      i.nombre.toLowerCase().trim() === nombreKey ? { ...i, desc } : i
+    )
+  );
+};
+
   return {
-    listas,
-    mochilaActiva,
-    idListaActiva,
-    setIdListaActiva,
-    inventarioGeneral,
-    crearNuevaLista,
-    borrarLista,
-    actualizarNombreLista,
-    togglePublica,
-    manejarNuevoItem,
-    cambiarCantidad,
-    eliminarObjeto,
-    añadirCategoria,
-    eliminarCategoria,
+    actualizarDescItem,
     actualizarEnlaceItem,
+    actualizarNombreLista,
     actualizarPesoItem,
+    añadirCategoria,
+    borrarLista,
+    cambiarCantidad,
+    crearNuevaLista,
+    eliminarCategoria,
+    eliminarItemInventario,
+    eliminarObjeto,
+    idListaActiva,
+    inventarioGeneral,
+    listas,
+    manejarNuevoItem,
+    mochilaActiva,
+    setIdListaActiva,
+    togglePublica,
   };
 };

@@ -9,7 +9,8 @@ export default function ListaCategorias({
   onEliminar, 
   onNuevoItem,
   onActualizarEnlace, 
-  onActualizarPeso
+  onActualizarPeso, 
+  onActualizarDesc
 }) {
   const [catEditando, setCatEditando] = useState(null);
   const [nuevaCatNombre, setNuevaCatNombre] = useState("");
@@ -76,6 +77,7 @@ export default function ListaCategorias({
                     setTempEnlace(it.enlace || "");
                   }}
                   onActualizarPeso={onActualizarPeso}
+                  onActualizarDesc={onActualizarDesc}
                 />
               ))}
               

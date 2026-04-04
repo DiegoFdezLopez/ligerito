@@ -14,6 +14,7 @@ function App() {
   const [mochilaSeleccionada, setMochilaSeleccionada] = useState(null);
 
   const {
+    actualizarDescItem,
     listas,
     mochilaActiva,
     idListaActiva,
@@ -29,7 +30,8 @@ function App() {
     añadirCategoria,
     eliminarCategoria,
     actualizarEnlaceItem,
-    actualizarPesoItem
+    actualizarPesoItem,
+    eliminarItemInventario
   } = useMochilas();
 
   // Gestión de sesión
@@ -49,6 +51,7 @@ function App() {
         onBorrarLista={borrarLista}
         inventario={inventarioGeneral} 
         onAñadirAlInventario={manejarNuevoItem}
+        onEliminarDelInventario={eliminarItemInventario}
       />
 
       <div className="flex-1 flex flex-col overflow-y-auto bg-slate-50">
@@ -97,6 +100,7 @@ function App() {
                 onNuevoItem={manejarNuevoItem} 
                 onActualizarEnlace={actualizarEnlaceItem} // <--- Pasamos la función al hijo
                 onActualizarPeso={actualizarPesoItem}
+                onActualizarDesc={actualizarDescItem}
               />
             </main>
           </>

@@ -7,12 +7,18 @@ export default function FilaItem({
   onEliminar,
   onAbrirEnlace,
   onActualizarPeso,
+  onActualizarDesc, // ✅ NUEVO
 }) {
   const [draftPeso, setDraftPeso] = useState(String(item.peso ?? ""));
+  const [draftDesc, setDraftDesc] = useState(item.desc ?? ""); // ✅ NUEVO
 
   useEffect(() => {
     setDraftPeso(String(item.peso ?? ""));
   }, [item.peso]);
+
+  useEffect(() => {
+    setDraftDesc(item.desc ?? "");
+  }, [item.desc]);
 
   const commitPeso = () => {
     if (esLectura) return;
@@ -20,11 +26,16 @@ export default function FilaItem({
 
     const n = Number(draftPeso);
     if (!Number.isFinite(n) || n < 0) {
-      // si metió algo raro, volvemos al valor actual
       setDraftPeso(String(item.peso ?? ""));
       return;
     }
     onActualizarPeso(item.id, n);
+  };
+
+  const commitDesc = () => {
+    if (esLectura) return;
+    if (!onActualizarDesc) return;
+    onActualizarDesc(item.id, draftDesc);
   };
 
   return (
@@ -35,32 +46,57 @@ export default function FilaItem({
 
           {/* BOTÓN DE ENLACE */}
           {esLectura ? (
-            item.enlace && (
+            item.enlace ? (
               <a
-                href={item.enlace}
+                href={String(item.enlace).startsWith("http") ? item.enlace : `https://${item.enlace}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-300 hover:text-blue-500 transition-colors"
+                className="text-slate-800 hover:text-blue-500 transition-colors"
+                aria-label="Abrir enlace"
+                title="Abrir enlace"
               >
                 <span className="material-symbols-outlined text-lg">link</span>
               </a>
+            ) : (
+              <span className="text-slate-200" aria-label="Sin enlace" title="Sin enlace">
+                <span className="material-symbols-outlined text-lg">link</span>
+              </span>
             )
           ) : (
             <button
               onClick={() => onAbrirEnlace?.(item)}
-              className={`material-symbols-outlined text-lg cursor-pointer transition-colors ${
-                item.enlace ? "text-slate-800" : "text-slate-200 hover:text-blue-500"
-              }`}
+              className={`material-symbols-outlined text-lg cursor-pointer transition-colors ${item.enlace ? "text-slate-800" : "text-slate-200 hover:text-blue-500"
+                }`}
+              aria-label={item.enlace ? "Editar/Ver enlace" : "Añadir enlace"}
+              title={item.enlace ? "Editar/Ver enlace" : "Añadir enlace"}
             >
               link
             </button>
           )}
         </div>
 
-        {item.desc && (
-          <p className="text-[10px] text-slate-400 italic truncate mt-0.5">
-            {item.desc}
-          </p>
+        {/* DESCRIPCIÓN */}
+        {esLectura ? (
+          item.desc && (
+            <p className="text-[10px] text-slate-400 italic truncate mt-0.5">
+              {item.desc}
+            </p>
+          )
+        ) : (
+          <input
+            className="mt-0.5 w-full text-[10px] text-slate-500 italic bg-transparent outline-none border-b border-transparent focus:border-blue-300"
+            placeholder="Añade una descripción..."
+            value={draftDesc}
+            onChange={(e) => setDraftDesc(e.target.value)}
+            onBlur={commitDesc}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitDesc();
+                e.currentTarget.blur();
+              }
+            }}
+          />
         )}
       </div>
 
@@ -100,7 +136,9 @@ export default function FilaItem({
               >
                 -
               </button>
-              <span className="font-bold w-6 text-center text-[10px]">{item.cant}</span>
+              <span className="font-bold w-6 text-center text-[10px]">
+                {item.cant}
+              </span>
               <button
                 onClick={() => onCambiarCantidad(item.id, 1)}
                 className="px-2 hover:text-blue-600 font-bold cursor-pointer"
@@ -108,6 +146,7 @@ export default function FilaItem({
                 +
               </button>
             </div>
+
             <button
               onClick={() => onEliminar(item.id)}
               className="text-slate-200 hover:text-red-500 transition-colors cursor-pointer"
