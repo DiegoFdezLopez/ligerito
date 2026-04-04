@@ -9,7 +9,7 @@ export default function Signup({ onSignup }) {
     e.preventDefault();
     if (nombre && email && password) {
       // Simulamos creación de usuario
-      onSignup();
+      onRegistro?.();
     }
   };
 

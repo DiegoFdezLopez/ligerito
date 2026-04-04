@@ -28,7 +28,8 @@ function App() {
     eliminarObjeto,
     añadirCategoria,
     eliminarCategoria,
-    actualizarEnlaceItem // <--- AÑADIDO AQUÍ (Importante extraerlo del Hook)
+    actualizarEnlaceItem,
+    actualizarPesoItem
   } = useMochilas();
 
   // Gestión de sesión
@@ -95,6 +96,7 @@ function App() {
                 onEliminar={eliminarObjeto} 
                 onNuevoItem={manejarNuevoItem} 
                 onActualizarEnlace={actualizarEnlaceItem} // <--- Pasamos la función al hijo
+                onActualizarPeso={actualizarPesoItem}
               />
             </main>
           </>
