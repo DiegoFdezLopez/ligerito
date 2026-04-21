@@ -14,6 +14,33 @@ function App() {
   const [mochilaSeleccionada, setMochilaSeleccionada] = useState(null);
   const [usuarioActual, setUsuarioActual] = useState(null);
 
+  const [armarioBackend, setArmarioBackend] = useState([]);
+  const [loadingArmario, setLoadingArmario] = useState(false);
+  const [errorArmario, setErrorArmario] = useState("");
+
+  const cargarArmario = async () => {
+    setErrorArmario("");
+    setLoadingArmario(true);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/armario");
+
+      if (!response.ok) {
+        setError("Error al cargar los datos del armario");
+        return;
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setArmarioBackend(data);
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo conectar con el servidor");
+    } finally {
+      setLoadingArmario(false);
+    }
+  };
+
   const {
     actualizarDescItem,
     listas,
@@ -50,6 +77,7 @@ function App() {
       <Login
         onLogin={(usuario) => {
           setUsuarioActual(usuario);
+          cargarArmario();
           setPantallaActual("principal");
         }}
         onIrARegistro={() => setPantallaActual("registro")}
