@@ -10,11 +10,13 @@ import com.proyecto.ligerito.dto.LoginResponse;
 import com.proyecto.ligerito.dto.RegisterRequest;
 import com.proyecto.ligerito.dto.RegisterResponse;
 import com.proyecto.ligerito.service.UsuarioService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 public class AuthController {
 
     private final UsuarioService usuarioService;

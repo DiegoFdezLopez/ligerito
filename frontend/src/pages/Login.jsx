@@ -1,21 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 export default function Login({ onLogin, onIrARegistro }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulación de validación para el frontend
-    if (email && password) {
-      onLogin();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError("Email o contraseña incorrectos.");
+        } else if (response.status === 400) {
+          setError("Datos de acceso no válidos.");
+        } else {
+          setError("Ha ocurrido un error al iniciar sesión.");
+        }
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Login correcto:", data);
+
+      onLogin?.(data);
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo conectar con el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-10 border border-slate-100">
-        
         {/* LOGO Y CABECERA */}
         <div className="flex flex-col items-center mb-10">
           <div className="bg-slate-800 p-3 rounded-2xl mb-4 text-white shadow-lg">
@@ -40,8 +73,8 @@ export default function Login({ onLogin, onIrARegistro }) {
               <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl">
                 mail
               </span>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 required
                 className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all"
                 placeholder="tu@email.com"
@@ -60,8 +93,8 @@ export default function Login({ onLogin, onIrARegistro }) {
               <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl">
                 lock
               </span>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 required
                 className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all"
                 placeholder="••••••••"
@@ -72,12 +105,14 @@ export default function Login({ onLogin, onIrARegistro }) {
           </div>
 
           {/* BOTÓN DE ACCESO */}
-          <button 
+          <button
             type="submit"
             className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg shadow-slate-200 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Iniciar Sesión</span>
-            <span className="material-symbols-outlined text-xl font-light">login</span>
+            <span className="material-symbols-outlined text-xl font-light">
+              login
+            </span>
           </button>
         </form>
 
@@ -85,8 +120,8 @@ export default function Login({ onLogin, onIrARegistro }) {
         <div className="mt-8 text-center border-t border-slate-50 pt-6">
           <p className="text-xs text-slate-400">
             ¿No tienes cuenta aún?{" "}
-            <span 
-              onClick={onIrARegistro} 
+            <span
+              onClick={onIrARegistro}
               className="text-blue-500 font-bold cursor-pointer hover:underline"
             >
               Regístrate gratis
