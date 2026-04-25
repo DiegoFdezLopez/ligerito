@@ -60,6 +60,49 @@ function App() {
     }
   };
 
+  const manejarNuevoItemReal = async (datos) => {
+    // Caso 1: ya viene del armario backend (por ejemplo desde el Sidebar)
+    if (datos.itemArmarioId || datos.id) {
+      manejarNuevoItem(datos);
+      return;
+    }
+
+    // Caso 2: item nuevo creado desde una mochila
+    try {
+      const response = await fetch("http://localhost:8080/api/armario", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre: datos.nombre,
+          peso: Number(datos.peso),
+          descripcion: datos.descripcion ?? "",
+          enlace: datos.enlace ?? "",
+          usuarioId: usuarioActual.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo crear el item en el armario");
+      }
+
+      const itemCreado = await response.json();
+
+      // Actualizar el armario real que usa el Sidebar
+      setArmarioBackend((prev) => [...prev, itemCreado]);
+
+      // Añadir el item a la mochila local con referencia al item base real
+      manejarNuevoItem({
+        ...itemCreado,
+        itemArmarioId: itemCreado.id,
+        categoria: datos.categoria,
+      });
+    } catch (error) {
+      console.error("Error creando item en backend:", error);
+    }
+  };
+
   const {
     actualizarDescripcionItem,
     listas,
@@ -116,7 +159,7 @@ function App() {
         onCrearLista={crearNuevaLista}
         onBorrarLista={borrarLista}
         inventario={armarioBackend}
-        onAñadirAlInventario={manejarNuevoItem}
+        onAñadirAlInventario={manejarNuevoItemReal}
         onEliminarDelInventario={eliminarItemArmarioBackend}
       />
 
@@ -167,8 +210,8 @@ function App() {
                 onEliminarCategoria={eliminarCategoria}
                 onCambiarCantidad={cambiarCantidad}
                 onEliminar={eliminarObjeto}
-                onNuevoItem={manejarNuevoItem}
-                onActualizarEnlace={actualizarEnlaceItem} // <--- Pasamos la función al hijo
+                onNuevoItem={manejarNuevoItemReal}
+                onActualizarEnlace={actualizarEnlaceItem} 
                 onActualizarPeso={actualizarPesoItem}
                 onActualizarDescripcion={actualizarDescripcionItem}
               />

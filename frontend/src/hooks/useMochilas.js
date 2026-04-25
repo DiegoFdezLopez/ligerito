@@ -146,7 +146,13 @@ export const useMochilas = () => {
       );
       if (yaExiste) return prevInv;
 
-      return [...prevInv, { ...datos, id: uid() }];
+      return [
+        ...prevInv,
+        {
+          ...datos,
+          id: datos.itemArmarioId ?? datos.id ?? uid(),
+        },
+      ];
     });
   };
 
