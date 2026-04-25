@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.proyecto.ligerito.dto.ItemArmarioPatchRequest;
 import com.proyecto.ligerito.dto.ItemArmarioResponse;
 import com.proyecto.ligerito.model.ItemArmario;
 import com.proyecto.ligerito.repository.ItemArmarioRepository;
@@ -33,13 +34,45 @@ public class ItemArmarioService {
     }
 
     public void eliminarPorId(Long id) {
-        if (!itemArmarioRepository.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Item de armario no encontrado");
+        ItemArmario item = itemArmarioRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Item de armario no encontrado"));
+
+        itemArmarioRepository.delete(item);
+    }
+
+    public ItemArmarioResponse actualizarParcial(Long id, ItemArmarioPatchRequest request) {
+        ItemArmario item = itemArmarioRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Item de armario no encontrado"));
+
+        if (request.getPeso() != null) {
+            if (request.getPeso() < 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El peso no puede ser negativo");
+            }
+            item.setPeso(request.getPeso());
         }
 
-        itemArmarioRepository.deleteById(id);
+        if (request.getDescripcion() != null) {
+            item.setDescripcion(request.getDescripcion());
+        }
+
+        if (request.getEnlace() != null) {
+            item.setEnlace(request.getEnlace());
+        }
+
+        ItemArmario guardado = itemArmarioRepository.save(item);
+
+        return new ItemArmarioResponse(
+                guardado.getId(),
+                guardado.getNombre(),
+                guardado.getPeso(),
+                guardado.getDescripcion(),
+                guardado.getEnlace());
     }
 
 }
