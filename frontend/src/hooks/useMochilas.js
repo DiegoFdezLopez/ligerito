@@ -45,6 +45,25 @@ export const useMochilas = () => {
 
   // --- LÓGICA ---
 
+  const patchItemArmario = async (itemArmarioId, cambios) => {
+    const response = await fetch(
+      `http://localhost:8080/api/armario/${itemArmarioId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cambios),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("No se pudo actualizar el item de armario");
+    }
+
+    return await response.json();
+  };
+
   const crearNuevaLista = (nombre) => {
     const nueva = {
       id: uid(),
@@ -110,7 +129,12 @@ export const useMochilas = () => {
           };
         }
 
-        const nuevo = { ...datos, id: uid(), cant: 1 };
+        const nuevo = {
+          ...datos,
+          itemArmarioId: datos.itemArmarioId ?? datos.id ?? null,
+          id: uid(),
+          cant: 1,
+        };
         return { ...l, objetos: [...l.objetos, nuevo] };
       }),
     );
@@ -148,26 +172,26 @@ export const useMochilas = () => {
     );
   };
 
-const eliminarItemInventario = (idArmario) => {
-  // Buscar el item en el inventario para obtener su nombre
-  const item = inventarioGeneral.find((i) => i.id === idArmario);
-  const nombreKey = (item?.nombre ?? "").toLowerCase().trim();
+  const eliminarItemInventario = (idArmario) => {
+    // Buscar el item en el inventario para obtener su nombre
+    const item = inventarioGeneral.find((i) => i.id === idArmario);
+    const nombreKey = (item?.nombre ?? "").toLowerCase().trim();
 
-  // 1) Eliminar del inventario general
-  setInventarioGeneral((prev) => prev.filter((i) => i.id !== idArmario));
+    // 1) Eliminar del inventario general
+    setInventarioGeneral((prev) => prev.filter((i) => i.id !== idArmario));
 
-  // 2) Eliminar de TODAS las listas donde exista (por nombre)
-  if (!nombreKey) return;
+    // 2) Eliminar de TODAS las listas donde exista (por nombre)
+    if (!nombreKey) return;
 
-  setListas((prev) =>
-    prev.map((l) => ({
-      ...l,
-      objetos: l.objetos.filter(
-        (o) => (o.nombre ?? "").toLowerCase().trim() !== nombreKey
-      ),
-    }))
-  );
-};
+    setListas((prev) =>
+      prev.map((l) => ({
+        ...l,
+        objetos: l.objetos.filter(
+          (o) => (o.nombre ?? "").toLowerCase().trim() !== nombreKey,
+        ),
+      })),
+    );
+  };
 
   const añadirCategoria = (nombreCat) => {
     if (!idListaActiva) return;
@@ -197,26 +221,53 @@ const eliminarItemInventario = (idArmario) => {
     );
   };
 
-  const actualizarEnlaceItem = (idItem, nuevoEnlace) => {
+  const actualizarEnlaceItem = async (idItem, nuevoEnlace) => {
+    const enlace = (nuevoEnlace ?? "").toString();
+
+    // 1) Actualiza en la mochila activa para que la UI responda al instante
     setListas((prev) =>
       prev.map((l) => {
         if (l.id !== idListaActiva) return l;
         return {
           ...l,
           objetos: l.objetos.map((obj) =>
-            obj.id === idItem ? { ...obj, enlace: nuevoEnlace } : obj,
+            obj.id === idItem ? { ...obj, enlace } : obj,
           ),
         };
       }),
     );
+
+    // 2) Buscar el objeto actual dentro de la mochila
+    const objActual = mochilaActiva.objetos.find((o) => o.id === idItem);
+    if (!objActual) return;
+
+    // 3) Si tiene itemArmarioId, parcheamos backend
+    if (objActual.itemArmarioId) {
+      try {
+        await patchItemArmario(objActual.itemArmarioId, { enlace });
+      } catch (error) {
+        console.error("Error actualizando enlace en backend:", error);
+      }
+      return;
+    }
+
+    // 4) Fallback temporal: si aún no tiene itemArmarioId, actualizamos armario local por nombre
+    const nombreKey = objActual.nombre?.toLowerCase().trim();
+    if (!nombreKey) return;
+
+    setInventarioGeneral((prevInv) =>
+      prevInv.map((i) =>
+        i.nombre.toLowerCase().trim() === nombreKey ? { ...i, enlace } : i,
+      ),
+    );
   };
 
-  // ✅ EDITAR PESO EN MOCHILA -> REFLEJAR EN ARMARIO
-  const actualizarPesoItem = (idItem, nuevoPeso) => {
+  // EDITAR PESO EN MOCHILA -> REFLEJAR EN ARMARIO
+  const actualizarPesoItem = async (idItem, nuevoPeso) => {
     const pesoNum = Number(nuevoPeso);
     if (!Number.isFinite(pesoNum) || pesoNum < 0) return;
 
-    // 1) Actualiza en la mochila activa
+    // 1) Actualiza en la mochila activa para que la UI responda al instante
     setListas((prev) =>
       prev.map((l) => {
         if (l.id !== idListaActiva) return l;
@@ -229,45 +280,73 @@ const eliminarItemInventario = (idArmario) => {
       }),
     );
 
-    // 2) Actualiza en el armario (por nombre)
+    // 2) Buscar el objeto actual dentro de la mochila
     const objActual = mochilaActiva.objetos.find((o) => o.id === idItem);
-    const nombreKey = objActual?.nombre?.toLowerCase();
+    if (!objActual) return;
+
+    // 3) Si ya tiene referencia real al ItemArmario del backend, parcheamos backend
+    if (objActual.itemArmarioId) {
+      try {
+        await patchItemArmario(objActual.itemArmarioId, { peso: pesoNum });
+      } catch (error) {
+        console.error("Error actualizando peso en backend:", error);
+      }
+      return;
+    }
+
+    // 4) Fallback temporal: si aún no tiene itemArmarioId, actualizamos armario local por nombre
+    const nombreKey = objActual.nombre?.toLowerCase().trim();
     if (!nombreKey) return;
 
     setInventarioGeneral((prevInv) =>
       prevInv.map((i) =>
-        i.nombre.toLowerCase() === nombreKey ? { ...i, peso: pesoNum } : i,
+        i.nombre.toLowerCase().trim() === nombreKey
+          ? { ...i, peso: pesoNum }
+          : i,
       ),
     );
   };
 
-  const actualizarDescripcionItem = (idItem, nuevaDescripcion) => {
-  const descripcion = (nuevaDescripcion ?? "").toString();
+  const actualizarDescripcionItem = async (idItem, nuevaDescripcion) => {
+    const descripcion = (nuevaDescripcion ?? "").toString();
 
-  // 1) Actualiza en la mochila activa
-  setListas((prev) =>
-    prev.map((l) => {
-      if (l.id !== idListaActiva) return l;
-      return {
-        ...l,
-        objetos: l.objetos.map((obj) =>
-          obj.id === idItem ? { ...obj, descripcion } : obj
-        ),
-      };
-    })
-  );
+    // 1) Actualiza en la mochila activa para que la UI responda al instante
+    setListas((prev) =>
+      prev.map((l) => {
+        if (l.id !== idListaActiva) return l;
+        return {
+          ...l,
+          objetos: l.objetos.map((obj) =>
+            obj.id === idItem ? { ...obj, descripcion } : obj,
+          ),
+        };
+      }),
+    );
 
-  // 2) Actualiza en el armario (por nombre)
-  const objActual = mochilaActiva.objetos.find((o) => o.id === idItem);
-  const nombreKey = (objActual?.nombre ?? "").toLowerCase().trim();
-  if (!nombreKey) return;
+    // 2) Buscar el objeto actual dentro de la mochila
+    const objActual = mochilaActiva.objetos.find((o) => o.id === idItem);
+    if (!objActual) return;
 
-  setInventarioGeneral((prevInv) =>
-    prevInv.map((i) =>
-      i.nombre.toLowerCase().trim() === nombreKey ? { ...i, descripcion } : i
-    )
-  );
-};
+    // 3) Si tiene itemArmarioId, parcheamos backend
+    if (objActual.itemArmarioId) {
+      try {
+        await patchItemArmario(objActual.itemArmarioId, { descripcion });
+      } catch (error) {
+        console.error("Error actualizando descripción en backend:", error);
+      }
+      return;
+    }
+
+    // 4) Fallback temporal: si aún no tiene itemArmarioId, actualizamos armario local por nombre
+    const nombreKey = objActual.nombre?.toLowerCase().trim();
+    if (!nombreKey) return;
+
+    setInventarioGeneral((prevInv) =>
+      prevInv.map((i) =>
+        i.nombre.toLowerCase().trim() === nombreKey ? { ...i, descripcion } : i,
+      ),
+    );
+  };
 
   return {
     actualizarDescripcionItem,
