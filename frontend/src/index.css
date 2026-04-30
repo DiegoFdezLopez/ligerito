@@ -32,3 +32,16 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8; /* slate-400 */
 }
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.tonal-layer {
+  background-color: #f1f3f5;
+  border: 1px solid #e1e3e4;
+}
+
+.soft-shadow {
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+}

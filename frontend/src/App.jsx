@@ -7,15 +7,29 @@ import Explorar from "./pages/Explorar";
 import DetalleComunidad from "./pages/DetalleComunidad";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
+import Landing from "./pages/Landing"
 import { useMochilas } from "./hooks/useMochilas";
 import { useArmario } from "./hooks/useArmario";
+import { useMochilasBackend } from "./hooks/useMochilasBackend";
 
 function App() {
-  const [pantallaActual, setPantallaActual] = useState("login");
+  const [pantallaActual, setPantallaActual] = useState("landing");
   const [mochilaSeleccionada, setMochilaSeleccionada] = useState(null);
   const [usuarioActual, setUsuarioActual] = useState(null);
 
-  const { armario: armarioBackend, cargar: cargarArmario, crear: crearArmario, eliminar: eliminarArmario } = useArmario();
+  const {
+    armario: armarioBackend,
+    cargar: cargarArmario,
+    crear: crearArmario,
+    eliminar: eliminarArmario,
+  } = useArmario();
+
+  const {
+    cargar: cargarMochilasBackend,
+    crear: crearMochilaBackend,
+    actualizar: actualizarMochilaBackend,
+    eliminar: eliminarMochilaBackend,
+  } = useMochilasBackend();
 
   const manejarNuevoItemReal = async (datos) => {
     // Caso 1: ya viene del armario backend (por ejemplo desde el Sidebar)
@@ -60,7 +74,6 @@ function App() {
     mochilaActiva,
     idListaActiva,
     setIdListaActiva,
-    inventarioGeneral,
     crearNuevaLista,
     borrarLista,
     actualizarNombreLista,
@@ -73,10 +86,69 @@ function App() {
     actualizarEnlaceItem,
     actualizarPesoItem,
     eliminarItemInventario,
+    hidratarListasDesdeBackend,
+    agregarListaPersistida,
   } = useMochilas(cargarArmario);
+
+  const crearNuevaListaReal = async (nombre) => {
+    try {
+      const creada = await crearMochilaBackend({
+        nombre,
+        esPublica: false,
+        usuarioId: usuarioActual.id,
+      });
+      agregarListaPersistida(creada);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo crear la mochila");
+    }
+  };
+
+  const borrarListaReal = async (id) => {
+    try {
+      await eliminarMochilaBackend(id);
+      borrarLista(id);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo borrar la mochila");
+    }
+  };
+
+  const actualizarNombreListaReal = async (nuevoNombre) => {
+    if (!idListaActiva) return;
+    try {
+      await actualizarMochilaBackend(idListaActiva, { nombre: nuevoNombre });
+      actualizarNombreLista(nuevoNombre);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo actualizar el nombre");
+    }
+  };
+
+  const togglePublicaReal = async () => {
+    if (!idListaActiva) return;
+    try {
+      await actualizarMochilaBackend(idListaActiva, {
+        esPublica: !mochilaActiva.publica,
+      });
+      togglePublica();
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo cambiar la visibilidad");
+    }
+  };
 
   // Gestión de sesión
   if (!usuarioActual) {
+    if (pantallaActual === "landing") {
+      return (
+        <Landing
+          onIrLogin={() => setPantallaActual("login")}
+          onIrRegistro={() => setPantallaActual("registro")}
+        />
+      );
+    }
+
     if (pantallaActual === "registro") {
       return (
         <Registro
@@ -88,9 +160,11 @@ function App() {
 
     return (
       <Login
-        onLogin={(usuario) => {
+        onLogin={async (usuario) => {
           setUsuarioActual(usuario);
-          cargarArmario();
+          await cargarArmario();
+          const mochilas = await cargarMochilasBackend(usuario.id);
+          hidratarListasDesdeBackend(mochilas);
           setPantallaActual("principal");
         }}
         onIrARegistro={() => setPantallaActual("registro")}
@@ -107,8 +181,8 @@ function App() {
           setIdListaActiva(id);
           setPantallaActual("principal");
         }}
-        onCrearLista={crearNuevaLista}
-        onBorrarLista={borrarLista}
+        onCrearLista={crearNuevaListaReal}
+        onBorrarLista={borrarListaReal}
         inventario={armarioBackend}
         onAñadirAlInventario={manejarNuevoItemReal}
         onEliminarDelInventario={eliminarItemArmarioBackend}
@@ -140,8 +214,8 @@ function App() {
             <Header
               nombreMochila={mochilaActiva.nombre}
               esPublica={mochilaActiva.publica}
-              onTogglePublica={togglePublica}
-              onActualizarNombre={actualizarNombreLista}
+              onTogglePublica={togglePublicaReal}
+              onActualizarNombre={actualizarNombreListaReal}
               onLogout={() => {
                 setUsuarioActual(null);
                 setPantallaActual("login");
@@ -162,7 +236,7 @@ function App() {
                 onCambiarCantidad={cambiarCantidad}
                 onEliminar={eliminarObjeto}
                 onNuevoItem={manejarNuevoItemReal}
-                onActualizarEnlace={actualizarEnlaceItem} 
+                onActualizarEnlace={actualizarEnlaceItem}
                 onActualizarPeso={actualizarPesoItem}
                 onActualizarDescripcion={actualizarDescripcionItem}
               />

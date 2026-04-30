@@ -34,7 +34,7 @@ export default function Sidebar({
       <div className="px-5 mb-3">
         <div className="flex items-center justify-between mb-2 px-1">
           <h2 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-            Mis Listas
+            Mochilas
           </h2>
           <button
             onClick={() => setMostrandoInput(!mostrandoInput)}
@@ -100,7 +100,7 @@ export default function Sidebar({
       <div className="px-5 flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-2 px-1">
           <h2 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-            Mi Armario
+            Armario
           </h2>
           <span className="text-[9px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-bold uppercase">
             {filtrados.length} Items

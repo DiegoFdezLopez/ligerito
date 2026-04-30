@@ -64,6 +64,43 @@ export const useMochilas = (onArmarioActualizado) => {
     );
   };
 
+  const hidratarListasDesdeBackend = (mochilasBackend) => {
+  setListas((prev) =>
+    mochilasBackend.map((m) => {
+      const existente = prev.find((l) => String(l.id) === String(m.id));
+
+      return {
+        id: m.id,
+        nombre: m.nombre,
+        publica: m.esPublica,
+        objetos: existente?.objetos ?? [],
+        categorias: existente?.categorias ?? [],
+      };
+    })
+  );
+
+  setIdListaActiva((prevId) => {
+    const sigueExistiendo = mochilasBackend.some(
+      (m) => String(m.id) === String(prevId)
+    );
+    if (sigueExistiendo) return prevId;
+    return mochilasBackend.length > 0 ? mochilasBackend[0].id : null;
+  });
+};
+
+const agregarListaPersistida = (mochilaBackend) => {
+  const nueva = {
+    id: mochilaBackend.id,
+    nombre: mochilaBackend.nombre,
+    publica: mochilaBackend.esPublica,
+    objetos: [],
+    categorias: [],
+  };
+
+  setListas((prev) => [...prev, nueva]);
+  setIdListaActiva(nueva.id);
+};
+
   // --- listas/mochilas ---
 
   const crearNuevaLista = (nombre) => {
@@ -304,5 +341,7 @@ export const useMochilas = (onArmarioActualizado) => {
     mochilaActiva,
     setIdListaActiva,
     togglePublica,
+    agregarListaPersistida,
+    hidratarListasDesdeBackend
   };
 };
