@@ -10,6 +10,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad que representa a un usuario registrado en el sistema.
+ * Es la raíz del agregado: posee sus {@link Mochila mochilas} y su
+ * {@link ItemArmario armario} de equipamiento, que se eliminan en cascada
+ * al borrar el usuario.
+ */
 @Entity
 @Table(name = "usuarios")
 @Data
@@ -23,14 +29,26 @@ public class Usuario {
 
     private String nick;
     private String email;
+
+    /** Contraseña del usuario almacenada en texto plano. */
     private String password;
 
-    // Lista de mochilas del usuario
+    /**
+     * Mochilas que pertenecen al usuario.
+     * {@code orphanRemoval} garantiza que una mochila se elimine de la base de datos
+     * en cuanto deje de estar asociada a este usuario.
+     * {@code @JsonIgnore} evita referencias circulares al serializar.
+     */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Mochila> mochilas = new ArrayList<>();
 
-    // Lista de items del armario del usuario
+    /**
+     * Items del armario personal del usuario.
+     * {@code orphanRemoval} garantiza que un item se elimine de la base de datos
+     * en cuanto deje de estar asociado a este usuario.
+     * {@code @JsonIgnore} evita referencias circulares al serializar.
+     */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ItemArmario> itemsArmario = new ArrayList<>();

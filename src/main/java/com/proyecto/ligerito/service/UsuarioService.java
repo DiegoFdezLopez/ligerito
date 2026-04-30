@@ -14,6 +14,11 @@ import com.proyecto.ligerito.exception.NickDuplicadoException;
 import com.proyecto.ligerito.model.Usuario;
 import com.proyecto.ligerito.repository.UsuarioRepository;
 
+/**
+ * Servicio que gestiona la lógica de negocio de los usuarios.
+ * Cubre el registro de nuevos usuarios, validando unicidad de email y nick,
+ * y la autenticación mediante email y contraseña.
+ */
 @Service
 public class UsuarioService {
 
@@ -23,6 +28,15 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * Verifica que el email y el nick no estén ya en uso antes de persistir.
+     *
+     * @param request datos del nuevo usuario (nick, email y contraseña)
+     * @return el {@link Usuario} recién creado y guardado en base de datos
+     * @throws EmailDuplicadoException si ya existe un usuario con el mismo email
+     * @throws NickDuplicadoException  si ya existe un usuario con el mismo nick
+     */
     public Usuario registrarUsuario(RegisterRequest request) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new EmailDuplicadoException("Ya existe un usuario con ese email");
@@ -42,6 +56,14 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    /**
+     * Autentica a un usuario mediante email y contraseña.
+     * La contraseña se compara en texto plano contra la almacenada en base de datos.
+     *
+     * @param request credenciales del usuario (email y contraseña)
+     * @return {@link LoginResponse} con el ID, nick y email del usuario autenticado
+     * @throws ResponseStatusException 401 si el email no existe o la contraseña es incorrecta
+     */
     public LoginResponse loginUsuario(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"));

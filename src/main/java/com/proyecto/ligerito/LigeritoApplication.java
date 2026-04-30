@@ -14,15 +14,34 @@ import com.proyecto.ligerito.model.Usuario;
 import com.proyecto.ligerito.repository.ItemArmarioRepository;
 import com.proyecto.ligerito.repository.UsuarioRepository;
 
+/**
+ * Clase principal de la aplicación Ligerito.
+ * Arranca el contexto de Spring Boot e inicializa datos de prueba en base de datos
+ * si aún no existen.
+ */
 @SpringBootApplication
 public class LigeritoApplication {
 
     private static final Logger log = LoggerFactory.getLogger(LigeritoApplication.class);
 
+    /**
+     * Punto de entrada de la aplicación.
+     *
+     * @param args argumentos de línea de comandos
+     */
     public static void main(String[] args) {
         SpringApplication.run(LigeritoApplication.class, args);
     }
 
+    /**
+     * Carga datos iniciales de prueba al arrancar la aplicación.
+     * Solo inserta el usuario y los items de armario si la base de datos está vacía,
+     * evitando duplicados en reinicios sucesivos.
+     *
+     * @param usuarioRepository     repositorio de usuarios
+     * @param itemArmarioRepository repositorio de items de armario
+     * @return runner que ejecuta la inicialización al inicio del contexto
+     */
     @Bean
     CommandLineRunner cargarDatosIniciales(
             UsuarioRepository usuarioRepository,

@@ -3,6 +3,10 @@ package com.proyecto.ligerito.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * DTO con las credenciales necesarias para autenticar a un usuario.
+ * Ambos campos son obligatorios y el email debe tener formato válido.
+ */
 public class LoginRequest {
 
     @NotBlank(message = "El email no puede estar vacío")
@@ -15,6 +19,10 @@ public class LoginRequest {
     public LoginRequest() {
     }
 
+    /**
+     * @param email    email del usuario; debe tener formato válido y no estar vacío
+     * @param password contraseña del usuario; no puede estar vacía
+     */
     public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;

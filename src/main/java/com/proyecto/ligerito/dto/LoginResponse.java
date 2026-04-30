@@ -1,5 +1,9 @@
 package com.proyecto.ligerito.dto;
 
+/**
+ * DTO de respuesta tras una autenticación exitosa.
+ * Devuelve los datos básicos del usuario identificado, sin exponer la contraseña.
+ */
 public class LoginResponse {
 
     private String nick;
@@ -9,6 +13,11 @@ public class LoginResponse {
     public LoginResponse() {
     }
 
+    /**
+     * @param id    identificador único del usuario autenticado
+     * @param nick  nombre de usuario público
+     * @param email email del usuario autenticado
+     */
     public LoginResponse(Long id, String nick, String email) {
         this.id = id;
         this.nick = nick;

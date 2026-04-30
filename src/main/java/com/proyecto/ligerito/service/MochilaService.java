@@ -1,4 +1,121 @@
 package com.proyecto.ligerito.service;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.proyecto.ligerito.dto.MochilaCreateRequest;
+import com.proyecto.ligerito.dto.MochilaResponse;
+import com.proyecto.ligerito.model.Mochila;
+import com.proyecto.ligerito.model.Usuario;
+import com.proyecto.ligerito.repository.MochilaRepository;
+import com.proyecto.ligerito.repository.UsuarioRepository;
+import com.proyecto.ligerito.dto.MochilaPatchRequest;
+
+/**
+ * Servicio que gestiona la lógica de negocio de las mochilas.
+ * Permite listar las mochilas de un usuario, crear nuevas, actualizarlas parcialmente
+ * y eliminarlas, asegurando que cada mochila quede vinculada a un {@link com.proyecto.ligerito.model.Usuario} válido.
+ */
+@Service
 public class MochilaService {
+
+    private final MochilaRepository mochilaRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    public MochilaService(MochilaRepository mochilaRepository, UsuarioRepository usuarioRepository) {
+        this.mochilaRepository = mochilaRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    /**
+     * Devuelve todas las mochilas asociadas a un usuario.
+     *
+     * @param usuarioId ID del usuario propietario de las mochilas
+     * @return lista de {@link MochilaResponse} con los datos de cada mochila
+     */
+    public List<MochilaResponse> listarPorUsuario(Long usuarioId) {
+        List<Mochila> mochilas = mochilaRepository.findByUsuarioId(usuarioId);
+
+        return mochilas.stream()
+                .map(m -> new MochilaResponse(
+                        m.getId(),
+                        m.getNombre(),
+                        m.isEsPublica()))
+                .toList();
+    }
+
+    /**
+     * Crea una nueva mochila y la asocia al usuario indicado en el request.
+     *
+     * @param request datos de la mochila a crear (nombre, visibilidad y ID de usuario)
+     * @return {@link MochilaResponse} con los datos de la mochila recién creada
+     * @throws ResponseStatusException 404 si el usuario no existe
+     */
+    public MochilaResponse crearMochila(MochilaCreateRequest request) {
+        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado"));
+
+        Mochila nuevaMochila = new Mochila();
+        nuevaMochila.setNombre(request.getNombre());
+        nuevaMochila.setEsPublica(request.getEsPublica());
+        nuevaMochila.setUsuario(usuario);
+
+        Mochila guardada = mochilaRepository.save(nuevaMochila);
+
+        return new MochilaResponse(
+                guardada.getId(),
+                guardada.getNombre(),
+                guardada.isEsPublica());
+    }
+
+    /**
+     * Elimina la mochila con el ID indicado.
+     *
+     * @param id ID de la mochila a eliminar
+     * @throws ResponseStatusException 404 si la mochila no existe
+     */
+    public void eliminarPorId(Long id) {
+        Mochila mochila = mochilaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Mochila no encontrada"));
+
+        mochilaRepository.delete(mochila);
+    }
+
+    /**
+     * Actualiza parcialmente una mochila existente.
+     * Solo se modifican los campos no nulos del request; el nombre además se ignora si está en blanco.
+     *
+     * @param id      ID de la mochila a actualizar
+     * @param request campos opcionales a actualizar (nombre y/o visibilidad)
+     * @return {@link MochilaResponse} con los datos actualizados de la mochila
+     * @throws ResponseStatusException 404 si la mochila no existe
+     */
+    public MochilaResponse actualizarParcial(Long id, MochilaPatchRequest request) {
+        Mochila mochila = mochilaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Mochila no encontrada"));
+
+        if (request.getNombre() != null && !request.getNombre().isBlank()) {
+            mochila.setNombre(request.getNombre());
+        }
+
+        if (request.getEsPublica() != null) {
+            mochila.setEsPublica(request.getEsPublica());
+        }
+
+        Mochila guardada = mochilaRepository.save(mochila);
+
+        return new MochilaResponse(
+                guardada.getId(),
+                guardada.getNombre(),
+                guardada.isEsPublica());
+    }
 }

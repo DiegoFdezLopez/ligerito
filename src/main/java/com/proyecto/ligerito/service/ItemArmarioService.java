@@ -14,6 +14,11 @@ import com.proyecto.ligerito.model.Usuario;
 import com.proyecto.ligerito.repository.ItemArmarioRepository;
 import com.proyecto.ligerito.repository.UsuarioRepository;
 
+/**
+ * Servicio que gestiona la lógica de negocio de los items del armario.
+ * Permite listar, crear, actualizar parcialmente y eliminar items,
+ * asegurando que cada item quede vinculado a un {@link com.proyecto.ligerito.model.Usuario} válido.
+ */
 @Service
 public class ItemArmarioService {
 
@@ -25,6 +30,11 @@ public class ItemArmarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    /**
+     * Devuelve todos los items de armario almacenados en base de datos.
+     *
+     * @return lista de {@link ItemArmarioResponse} con los datos de cada item
+     */
     public List<ItemArmarioResponse> listarTodos() {
         List<ItemArmario> items = itemArmarioRepository.findAll();
 
@@ -38,6 +48,12 @@ public class ItemArmarioService {
                 .toList();
     }
 
+    /**
+     * Elimina el item de armario con el ID indicado.
+     *
+     * @param id ID del item a eliminar
+     * @throws ResponseStatusException 404 si el item no existe
+     */
     public void eliminarPorId(Long id) {
         ItemArmario item = itemArmarioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -47,6 +63,16 @@ public class ItemArmarioService {
         itemArmarioRepository.delete(item);
     }
 
+    /**
+     * Actualiza parcialmente un item de armario existente.
+     * Solo se modifican los campos no nulos del request; el peso además se valida para que no sea negativo.
+     *
+     * @param id      ID del item a actualizar
+     * @param request campos opcionales a actualizar (peso, descripción y/o enlace)
+     * @return {@link ItemArmarioResponse} con los datos actualizados del item
+     * @throws ResponseStatusException 404 si el item no existe
+     * @throws ResponseStatusException 400 si el peso proporcionado es negativo
+     */
     public ItemArmarioResponse actualizarParcial(Long id, ItemArmarioPatchRequest request) {
         ItemArmario item = itemArmarioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -80,6 +106,13 @@ public class ItemArmarioService {
                 guardado.getEnlace());
     }
 
+    /**
+     * Crea un nuevo item de armario y lo asocia al usuario indicado en el request.
+     *
+     * @param request datos del item a crear (nombre, peso, descripción, enlace e ID de usuario)
+     * @return {@link ItemArmarioResponse} con los datos del item recién creado
+     * @throws ResponseStatusException 404 si el usuario no existe
+     */
     public ItemArmarioResponse crearItemArmario(ItemArmarioCreateRequest request) {
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new ResponseStatusException(
