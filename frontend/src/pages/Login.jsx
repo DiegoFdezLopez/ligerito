@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { login } from "../services/apiAuth";
 
 export default function Login({ onLogin, onIrARegistro }) {
   const [email, setEmail] = useState("");
@@ -12,35 +13,11 @@ export default function Login({ onLogin, onIrARegistro }) {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError("Email o contraseña incorrectos.");
-        } else if (response.status === 400) {
-          setError("Datos de acceso no válidos.");
-        } else {
-          setError("Ha ocurrido un error al iniciar sesión.");
-        }
-        return;
-      }
-
-      const data = await response.json();
-      console.log("Login correcto:", data);
-
+      const data = await login(email, password);
       onLogin?.(data);
     } catch (err) {
       console.error(err);
-      setError("No se pudo conectar con el servidor.");
+      setError(err.message ?? "No se pudo conectar con el servidor.");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import FilaItem from './FilaItem';
+import ModalEnlace from './ModalEnlace';
+import FormularioNuevoItem from './FormularioNuevoItem';
 
 export default function ListaCategorias({ 
   listaDeObjetos, 
@@ -15,30 +17,7 @@ export default function ListaCategorias({
   const [catEditando, setCatEditando] = useState(null);
   const [nuevaCatNombre, setNuevaCatNombre] = useState("");
   const [mostrandoNuevaCat, setMostrandoNuevaCat] = useState(false);
-  const [nuevoItem, setNuevoItem] = useState({ nombre: '', descripcion: '', peso: '' });
-  
-  // ESTADOS PARA EL MODAL DE ENLACE
   const [itemEditandoEnlace, setItemEditandoEnlace] = useState(null);
-  const [tempEnlace, setTempEnlace] = useState("");
-
-  const manejarGuardarItem = (categoria) => {
-    if (!nuevoItem.nombre || !nuevoItem.peso) return;
-    onNuevoItem({
-      nombre: nuevoItem.nombre,
-      peso: parseInt(nuevoItem.peso),
-      descripcion: nuevoItem.descripcion,
-      categoria: categoria
-    });
-    setNuevoItem({ nombre: '', descripcion: '', peso: '' });
-    setCatEditando(null);
-  };
-
-  const manejarKeyPress = (e, categoria) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      manejarGuardarItem(categoria);
-    }
-  };
 
   return (
     <div className="space-y-4 pb-10">
@@ -72,50 +51,18 @@ export default function ListaCategorias({
                   item={item} 
                   onCambiarCantidad={onCambiarCantidad}
                   onEliminar={onEliminar}
-                  onAbrirEnlace={(it) => {
-                    setItemEditandoEnlace(it.id);
-                    setTempEnlace(it.enlace || "");
-                  }}
+                  onAbrirEnlace={(it) => setItemEditandoEnlace(it)}
                   onActualizarPeso={onActualizarPeso}
                   onActualizarDescripcion={onActualizarDescripcion}
                 />
               ))}
               
-              {/* Formulario rápido para añadir ítem */}
               {catEditando === cat && (
-                <div className="p-4 bg-blue-50/30 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                  <div className="flex gap-2">
-                    <input 
-                      autoFocus placeholder="¿Qué añades?" 
-                      className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-400 shadow-sm" 
-                      value={nuevoItem.nombre} 
-                      onChange={(e) => setNuevoItem({ ...nuevoItem, nombre: e.target.value })}
-                      onKeyDown={(e) => manejarKeyPress(e, cat)} 
-                    />
-                    <input 
-                      placeholder="Gramos" type="number" 
-                      className="w-24 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-400 shadow-sm" 
-                      value={nuevoItem.peso} 
-                      onChange={(e) => setNuevoItem({ ...nuevoItem, peso: e.target.value })}
-                      onKeyDown={(e) => manejarKeyPress(e, cat)} 
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <input 
-                      placeholder="Descripción opcional..." 
-                      className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] italic outline-none focus:border-blue-400 shadow-sm" 
-                      value={nuevoItem.descripcion} 
-                      onChange={(e) => setNuevoItem({ ...nuevoItem, descripcion: e.target.value })}
-                      onKeyDown={(e) => manejarKeyPress(e, cat)} 
-                    />
-                    <button 
-                      onClick={() => manejarGuardarItem(cat)} 
-                      className="bg-blue-600 text-white rounded-xl px-4 py-2 hover:bg-blue-700 transition-all active:scale-95 shadow-md shadow-blue-100"
-                    >
-                      <span className="material-symbols-outlined text-sm">done</span>
-                    </button>
-                  </div>
-                </div>
+                <FormularioNuevoItem
+                  categoria={cat}
+                  onGuardar={onNuevoItem}
+                  onCancelar={() => setCatEditando(null)}
+                />
               )}
             </div>
           </section>
@@ -155,55 +102,13 @@ export default function ListaCategorias({
         )}
       </div>
 
-      {/* MODAL DE GESTIÓN DE ENLACES */}
       {itemEditandoEnlace && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[4px] z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200 text-center relative border border-slate-100">
-            <div className="bg-blue-50 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-blue-600 text-3xl">link</span>
-            </div>
-            
-            <h3 className="text-xl font-black text-slate-800 mb-2">Enlace de producto</h3>
-            <p className="text-xs text-slate-400 mb-8 px-4 font-medium leading-relaxed">
-              Pega la URL del artículo para consultarlo o comprarlo más tarde.
-            </p>
-            
-            <input 
-              autoFocus type="url" placeholder="https://..." value={tempEnlace} 
-              onChange={(e) => setTempEnlace(e.target.value)}
-              className="w-full border border-slate-200 rounded-2xl px-5 py-3.5 text-sm outline-none focus:border-blue-400 mb-6 bg-slate-50 transition-all focus:bg-white"
-            />
-
-            <div className="flex flex-col gap-3">
-              {tempEnlace && tempEnlace.includes('.') && (
-                <a 
-                  href={tempEnlace.startsWith('http') ? tempEnlace : `https://${tempEnlace}`} 
-                  target="_blank" rel="noopener noreferrer"
-                  className="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-xs font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-xl shadow-blue-200 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-sm">open_in_new</span> Visitar Tienda
-                </a>
-              )}
-              <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={() => setItemEditandoEnlace(null)} 
-                  className="flex-1 py-3 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest"
-                >
-                  Cancelar
-                </button>
-                <button 
-                  onClick={() => { 
-                    onActualizarEnlace(itemEditandoEnlace, tempEnlace); 
-                    setItemEditandoEnlace(null); 
-                  }}
-                  className="flex-1 bg-slate-800 text-white py-3.5 rounded-2xl text-xs font-bold hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-slate-200"
-                >
-                  {tempEnlace ? 'Actualizar' : 'Guardar'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ModalEnlace
+          itemId={itemEditandoEnlace.id}
+          enlaceInicial={itemEditandoEnlace.enlace}
+          onGuardar={onActualizarEnlace}
+          onCerrar={() => setItemEditandoEnlace(null)}
+        />
       )}
     </div>
   );

@@ -8,57 +8,14 @@ import DetalleComunidad from "./pages/DetalleComunidad";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import { useMochilas } from "./hooks/useMochilas";
+import { useArmario } from "./hooks/useArmario";
 
 function App() {
   const [pantallaActual, setPantallaActual] = useState("login");
   const [mochilaSeleccionada, setMochilaSeleccionada] = useState(null);
   const [usuarioActual, setUsuarioActual] = useState(null);
 
-  const [armarioBackend, setArmarioBackend] = useState([]);
-  const [loadingArmario, setLoadingArmario] = useState(false);
-  const [errorArmario, setErrorArmario] = useState("");
-
-  const cargarArmario = async () => {
-    setErrorArmario("");
-    setLoadingArmario(true);
-
-    try {
-      const response = await fetch("http://localhost:8080/api/armario");
-
-      if (!response.ok) {
-        setErrorArmario("Error al cargar los datos del armario");
-        return;
-      }
-
-      const data = await response.json();
-      console.log(data);
-      setArmarioBackend(data);
-    } catch (err) {
-      console.error(err);
-      setErrorArmario("No se pudo conectar con el servidor");
-    } finally {
-      setLoadingArmario(false);
-    }
-  };
-
-  const eliminarItemArmarioBackend = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/armario/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("No se pudo eliminar el item del armario");
-      }
-
-      setArmarioBackend((prev) => prev.filter((item) => item.id !== id));
-
-      eliminarItemInventario(id);
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo eliminar el item del armario en el servidor");
-    }
-  };
+  const { armario: armarioBackend, cargar: cargarArmario, crear: crearArmario, eliminar: eliminarArmario } = useArmario();
 
   const manejarNuevoItemReal = async (datos) => {
     // Caso 1: ya viene del armario backend (por ejemplo desde el Sidebar)
@@ -69,30 +26,14 @@ function App() {
 
     // Caso 2: item nuevo creado desde una mochila
     try {
-      const response = await fetch("http://localhost:8080/api/armario", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre: datos.nombre,
-          peso: Number(datos.peso),
-          descripcion: datos.descripcion ?? "",
-          enlace: datos.enlace ?? "",
-          usuarioId: usuarioActual.id,
-        }),
+      const itemCreado = await crearArmario({
+        nombre: datos.nombre,
+        peso: Number(datos.peso),
+        descripcion: datos.descripcion ?? "",
+        enlace: datos.enlace ?? "",
+        usuarioId: usuarioActual.id,
       });
 
-      if (!response.ok) {
-        throw new Error("No se pudo crear el item en el armario");
-      }
-
-      const itemCreado = await response.json();
-
-      // Actualizar el armario real que usa el Sidebar
-      setArmarioBackend((prev) => [...prev, itemCreado]);
-
-      // Añadir el item a la mochila local con referencia al item base real
       manejarNuevoItem({
         ...itemCreado,
         itemArmarioId: itemCreado.id,
@@ -100,6 +41,16 @@ function App() {
       });
     } catch (error) {
       console.error("Error creando item en backend:", error);
+    }
+  };
+
+  const eliminarItemArmarioBackend = async (id) => {
+    try {
+      await eliminarArmario(id);
+      eliminarItemInventario(id);
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo eliminar el item del armario en el servidor");
     }
   };
 
@@ -122,7 +73,7 @@ function App() {
     actualizarEnlaceItem,
     actualizarPesoItem,
     eliminarItemInventario,
-  } = useMochilas();
+  } = useMochilas(cargarArmario);
 
   // Gestión de sesión
   if (!usuarioActual) {
