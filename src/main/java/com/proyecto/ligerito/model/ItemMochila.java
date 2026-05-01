@@ -24,9 +24,6 @@ public class ItemMochila {
     /** Número de unidades del item incluidas en la mochila. */
     private int cantidad;
 
-    /** Descripción o nota específica para este item dentro de la mochila; puede ser {@code null}. */
-    private String descripcion;
-
     /** Mochila a la que pertenece este item. Cargado de forma lazy. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mochila_id")
