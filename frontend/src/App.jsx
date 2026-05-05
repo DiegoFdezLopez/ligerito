@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import ResumenPesos from "./components/ResumenPesos";
@@ -42,6 +42,61 @@ function App() {
     eliminar: eliminarMochilaBackend,
   } = useMochilasBackend();
 
+  const {
+    actualizarDescripcionItem,
+    listas,
+    mochilaActiva,
+    idListaActiva,
+    setIdListaActiva,
+    borrarLista,
+    actualizarNombreLista,
+    togglePublica,
+    actualizarEnlaceItem,
+    actualizarPesoItem,
+    eliminarItemInventario,
+    hidratarListasDesdeBackend,
+    agregarListaPersistida,
+  } = useMochilas(cargarArmario);
+
+  const sincronizarMochilas = async (usuarioId) => {
+    const mochilas = await cargarMochilasBackend(usuarioId);
+
+    const mochilasCompletas = await Promise.all(
+      mochilas.map(async (mochila) => {
+        const categoriasResponse = await getCategorias(mochila.id);
+        const itemsResponse = await getItemsMochila(mochila.id);
+
+        return {
+          ...mochila,
+          categorias: categoriasResponse.map((c) => c.nombre),
+          objetos: itemsResponse.map((item) => ({
+            id: item.id,
+            itemArmarioId: item.itemArmarioId,
+            nombre: item.nombre,
+            peso: item.peso,
+            descripcion: item.descripcion ?? "",
+            enlace: item.enlace ?? "",
+            categoria: item.categoriaNombre,
+            cant: item.cantidad,
+          })),
+        };
+      }),
+    );
+
+    hidratarListasDesdeBackend(mochilasCompletas);
+  };
+
+  const obtenerCategoriaIdPorNombre = async (mochilaId, nombreCat) => {
+    const categoriasBackend = await getCategorias(mochilaId);
+    const categoria = categoriasBackend.find((c) => c.nombre === nombreCat);
+
+    if (!categoria) {
+      throw new Error("No se encontró la categoría en el servidor");
+    }
+
+    return categoria.id;
+  };
+
   const manejarNuevoItemReal = async (datos) => {
     if (!idListaActiva) return;
 
@@ -53,12 +108,10 @@ function App() {
 
       let itemArmarioId = datos.itemArmarioId ?? null;
 
-      // Caso 1: el item ya existe en backend porque viene del armario/sidebar
       if (!itemArmarioId && datos.id) {
         itemArmarioId = datos.id;
       }
 
-      // Caso 2: item nuevo creado desde una mochila -> primero crear en armario
       if (!itemArmarioId) {
         const itemCreado = await crearArmario({
           nombre: datos.nombre,
@@ -78,12 +131,13 @@ function App() {
         itemArmarioId,
       });
 
-      await cargarMochilasConCategorias(usuarioActual.id);
+      await sincronizarMochilas(usuarioActual.id);
     } catch (error) {
       console.error("Error añadiendo item a mochila:", error);
       alert("No se pudo añadir el item a la mochila");
     }
   };
+
   const eliminarItemArmarioBackend = async (id) => {
     try {
       await eliminarArmario(id);
@@ -104,63 +158,12 @@ function App() {
     }
   };
 
-  const {
-    actualizarDescripcionItem,
-    listas,
-    mochilaActiva,
-    idListaActiva,
-    setIdListaActiva,
-    borrarLista,
-    actualizarNombreLista,
-    togglePublica,
-    añadirCategoria,
-    eliminarCategoria,
-    actualizarEnlaceItem,
-    actualizarPesoItem,
-    eliminarItemInventario,
-    hidratarListasDesdeBackend,
-    agregarListaPersistida,
-  } = useMochilas(cargarArmario);
-
-  const cargarMochilasConCategorias = async (usuarioId) => {
-    const mochilas = await cargarMochilasBackend(usuarioId);
-
-    const mochilasConCategorias = await Promise.all(
-      mochilas.map(async (mochila) => {
-        const categoriasResponse = await getCategorias(mochila.id);
-        const itemsResponse = await getItemsMochila(mochila.id);
-
-        return {
-          ...mochila,
-          categorias: categoriasResponse.map((c) => c.nombre),
-          objetos: itemsResponse.map((item) => ({
-            id: item.id, // id real de ItemMochila
-            itemArmarioId: item.itemArmarioId,
-            nombre: item.nombre,
-            peso: item.peso,
-            descripcion: item.descripcion ?? "",
-            enlace: item.enlace ?? "",
-            categoria: item.categoriaNombre,
-            cant: item.cantidad,
-          })),
-        };
-      }),
-    );
-
-    hidratarListasDesdeBackend(mochilasConCategorias);
-  };
-
   const añadirCategoriaReal = async (nombreCat) => {
     if (!idListaActiva) return;
 
     try {
-      await createCategoriaApi({
-        nombre: nombreCat,
-        mochilaId: idListaActiva,
-      });
-
-      añadirCategoria(nombreCat);
-      await cargarMochilasConCategorias(usuarioActual.id);
+      await createCategoriaApi({ nombre: nombreCat, mochilaId: idListaActiva });
+      await sincronizarMochilas(usuarioActual.id);
     } catch (error) {
       console.error(error);
       alert("No se pudo crear la categoría");
@@ -172,7 +175,6 @@ function App() {
 
     try {
       const categoriasBackend = await getCategorias(idListaActiva);
-
       const categoria = categoriasBackend.find((c) => c.nombre === nombreCat);
 
       if (!categoria) {
@@ -181,31 +183,16 @@ function App() {
       }
 
       await deleteCategoriaApi(categoria.id);
-
-      eliminarCategoria(nombreCat);
-      await cargarMochilasConCategorias(usuarioActual.id);
+      await sincronizarMochilas(usuarioActual.id);
     } catch (error) {
       console.error(error);
       alert("No se pudo eliminar la categoría");
     }
   };
 
-  const obtenerCategoriaIdPorNombre = async (mochilaId, nombreCat) => {
-    const categoriasBackend = await getCategorias(mochilaId);
-    const categoria = categoriasBackend.find((c) => c.nombre === nombreCat);
-
-    if (!categoria) {
-      throw new Error("No se encontró la categoría en el servidor");
-    }
-
-    return categoria.id;
-  };
-
   const cambiarCantidadReal = async (idItemMochila, incremento) => {
     try {
-      const itemActual = mochilaActiva.objetos.find(
-        (o) => o.id === idItemMochila,
-      );
+      const itemActual = mochilaActiva.objetos.find((o) => o.id === idItemMochila);
       if (!itemActual) return;
 
       const nuevaCantidad = itemActual.cant + incremento;
@@ -216,7 +203,7 @@ function App() {
         await patchItemMochilaApi(idItemMochila, { cantidad: nuevaCantidad });
       }
 
-      await cargarMochilasConCategorias(usuarioActual.id);
+      await sincronizarMochilas(usuarioActual.id);
     } catch (error) {
       console.error(error);
       alert("No se pudo actualizar la cantidad");
@@ -226,7 +213,7 @@ function App() {
   const eliminarObjetoReal = async (idItemMochila) => {
     try {
       await deleteItemMochilaApi(idItemMochila);
-      await cargarMochilasConCategorias(usuarioActual.id);
+      await sincronizarMochilas(usuarioActual.id);
     } catch (error) {
       console.error(error);
       alert("No se pudo eliminar el item de la mochila");
@@ -241,10 +228,7 @@ function App() {
         usuarioId: usuarioActual.id,
       });
 
-      agregarListaPersistida({
-        ...creada,
-        categorias: [],
-      });
+      agregarListaPersistida({ ...creada, categorias: [] });
     } catch (error) {
       console.error(error);
       alert("No se pudo crear la mochila");
@@ -302,7 +286,7 @@ function App() {
         onLogin={async (usuario) => {
           setUsuarioActual(usuario);
           await cargarArmario();
-          await cargarMochilasConCategorias(usuario.id);
+          await sincronizarMochilas(usuario.id);
           setPantallaActual("principal");
         }}
         onIrARegistro={() => setPantallaActual("registro")}
