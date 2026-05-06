@@ -35,10 +35,8 @@ public class ItemArmarioService {
      *
      * @return lista de {@link ItemArmarioResponse} con los datos de cada item
      */
-    public List<ItemArmarioResponse> listarTodos() {
-        List<ItemArmario> items = itemArmarioRepository.findAll();
-
-        return items.stream()
+    public List<ItemArmarioResponse> listarPorUsuario(Long usuarioId) {
+        return itemArmarioRepository.findByUsuarioId(usuarioId).stream()
                 .map(item -> new ItemArmarioResponse(
                         item.getId(),
                         item.getNombre(),

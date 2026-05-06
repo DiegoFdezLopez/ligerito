@@ -1,7 +1,7 @@
 const BASE = "http://localhost:8080/api/armario";
 
-export const getArmario = async () => {
-  const res = await fetch(BASE);
+export const getArmario = async (usuarioId) => {
+  const res = await fetch(`${BASE}?usuarioId=${usuarioId}`);
   if (!res.ok) throw new Error("Error al cargar el armario");
   return res.json();
 };

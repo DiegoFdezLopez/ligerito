@@ -285,7 +285,7 @@ function App() {
       <Login
         onLogin={async (usuario) => {
           setUsuarioActual(usuario);
-          await cargarArmario();
+          await cargarArmario(usuario.id);
           await sincronizarMochilas(usuario.id);
           setPantallaActual("principal");
         }}
@@ -338,6 +338,7 @@ function App() {
               esPublica={mochilaActiva.publica}
               onTogglePublica={togglePublicaReal}
               onActualizarNombre={actualizarNombreListaReal}
+              usuario={usuarioActual}
               onLogout={() => {
                 setUsuarioActual(null);
                 setPantallaActual("login");

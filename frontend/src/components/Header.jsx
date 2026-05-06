@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Header({ nombreMochila, esPublica, onTogglePublica, onActualizarNombre, onLogout, onIrAExplorar }) {
+export default function Header({ nombreMochila, esPublica, onTogglePublica, onActualizarNombre, usuario, onLogout, onIrAExplorar }) {
   return (
     <header className="h-16 bg-slate-50/50 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10 shrink-0 shadow-sm">
       <div className="flex flex-col min-w-0">
@@ -21,10 +21,10 @@ export default function Header({ nombreMochila, esPublica, onTogglePublica, onAc
 
         <div className="flex items-center gap-3 pl-3 border-l border-slate-300">
           <div className="text-right hidden sm:block leading-none">
-            <p className="text-[12px] font-bold text-slate-800 mb-0.5">Diego User</p>
+            <p className="text-[12px] font-bold text-slate-800 mb-0.5">{usuario?.nick}</p>
             <button onClick={onLogout} className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase cursor-pointer">Cerrar Sesión</button>
           </div>
-          <div className="h-8 w-8 rounded-lg overflow-hidden border border-slate-300 shadow-sm"><img alt="Perfil" className="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Diego+User&background=1e293b&color=fff" /></div>
+          <div className="h-8 w-8 rounded-lg overflow-hidden border border-slate-300 shadow-sm"><img alt="Perfil" className="w-full h-full object-cover" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(usuario?.nick ?? '')}&background=1e293b&color=fff`} /></div>
         </div>
       </div>
     </header>

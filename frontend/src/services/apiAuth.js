@@ -1,5 +1,21 @@
 const BASE = "http://localhost:8080/auth";
 
+export const register = async (nick, email, password) => {
+  const res = await fetch(`${BASE}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nick, email, password }),
+  });
+
+  if (!res.ok) {
+    if (res.status === 409) throw new Error("El email o nick ya están en uso.");
+    if (res.status === 400) throw new Error("Datos de registro no válidos.");
+    throw new Error("Ha ocurrido un error al registrarse.");
+  }
+
+  return res.json();
+};
+
 export const login = async (email, password) => {
   const res = await fetch(`${BASE}/login`, {
     method: "POST",

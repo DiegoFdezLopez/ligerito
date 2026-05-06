@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
+import { register } from '../services/apiAuth';
 
 export default function Registro({ onRegistro, onIrALogin }) {
   const [nick, setNick] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (nick && email && password) {
-      // Simulación temporal de registro
-      onRegistro?.();
+    setError("");
+    setLoading(true);
+    try {
+      const data = await register(nick, email, password);
+      onRegistro?.(data);
+    } catch (err) {
+      setError(err.message ?? "No se pudo conectar con el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,11 +79,16 @@ export default function Registro({ onRegistro, onIrALogin }) {
             />
           </div>
 
+          {error && (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg transition-all transform active:scale-[0.98] cursor-pointer"
+            disabled={loading}
+            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg transition-all transform active:scale-[0.98] cursor-pointer disabled:opacity-60"
           >
-            Crear Cuenta
+            {loading ? "Creando cuenta..." : "Crear Cuenta"}
           </button>
         </form>
 

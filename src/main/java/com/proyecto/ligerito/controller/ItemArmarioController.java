@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
@@ -43,8 +44,8 @@ public class ItemArmarioController {
             @ApiResponse(responseCode = "401", description = "No autenticado")
     })
     @GetMapping
-    public List<ItemArmarioResponse> listarArmario() {
-        return itemArmarioService.listarTodos();
+    public List<ItemArmarioResponse> listarArmario(@RequestParam Long usuarioId) {
+        return itemArmarioService.listarPorUsuario(usuarioId);
     }
 
     @DeleteMapping("/{id}")

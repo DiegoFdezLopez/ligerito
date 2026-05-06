@@ -10,11 +10,11 @@ export const useArmario = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const cargar = async () => {
+  const cargar = async (usuarioId) => {
     setError("");
     setLoading(true);
     try {
-      const data = await getArmario();
+      const data = await getArmario(usuarioId);
       setArmario(data);
     } catch (err) {
       console.error(err);
