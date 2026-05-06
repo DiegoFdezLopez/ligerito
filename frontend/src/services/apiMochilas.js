@@ -32,3 +32,13 @@ export const deleteMochila = async (id) => {
   });
   if (!response.ok) throw new Error("No se pudo eliminar la mochila");
 };
+
+export const getMochilasPublicas = async () => {
+  const response = await fetch(`${BASE_URL}/publicas`);
+
+  if (!response.ok) {
+    throw new Error("No se pudieron cargar las mochilas públicas");
+  }
+
+  return await response.json();
+};
