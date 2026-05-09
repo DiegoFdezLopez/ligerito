@@ -10,6 +10,8 @@ export default function Sidebar({
   onAñadirAlInventario,
   onEliminarDelInventario,
   onIrAPrincipal,
+  isOpen = false,
+  onClose,
 }) {
   const [busqueda, setBusqueda] = useState("");
   const [mostrandoInput, setMostrandoInput] = useState(false);
@@ -21,8 +23,22 @@ export default function Sidebar({
   );
 
   return (
+    <>
+      {/* Overlay oscuro en móvil cuando el drawer está abierto */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
     <aside
-      className="w-84 bg-slate-800 text-white h-screen flex flex-col shrink-0 shadow-2xl overflow-hidden border-r border-slate-700/50"
+      className={`
+        bg-slate-800 text-white h-screen flex flex-col shrink-0 shadow-2xl overflow-hidden border-r border-slate-700/50
+        fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out
+        md:relative md:w-84 md:translate-x-0
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
       role="complementary"
     >
       <button
@@ -232,5 +248,6 @@ export default function Sidebar({
         </div>
       </div>
     </aside>
+    </>
   );
 }

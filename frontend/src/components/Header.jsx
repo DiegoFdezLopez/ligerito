@@ -10,20 +10,30 @@ export default function Header({
   onIrAExplorar,
   onExportarPDF,
   onIrAConfiguracion,
+  onAbrirSidebar,
 }) {
   return (
     <header className="h-16 bg-slate-50/50 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10 shrink-0 shadow-sm">
-      <div className="flex flex-col min-w-0">
-        <div className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-          Mochila Seleccionada
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onAbrirSidebar}
+          className="md:hidden p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-all cursor-pointer"
+          aria-label="Abrir menú"
+        >
+          <span className="material-symbols-outlined text-xl">menu</span>
+        </button>
+        <div className="flex flex-col min-w-0">
+          <div className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+            Mochila Seleccionada
+          </div>
+          <input
+            type="text"
+            aria-label="Editar nombre de mochila"
+            value={nombreMochila}
+            onChange={(e) => onActualizarNombre(e.target.value)}
+            className="text-xl font-black text-slate-800 bg-transparent border-none outline-none focus:ring-0 p-0 w-full hover:bg-white/50 transition-colors rounded"
+          />
         </div>
-        <input
-          type="text"
-          aria-label="Editar nombre de mochila"
-          value={nombreMochila}
-          onChange={(e) => onActualizarNombre(e.target.value)}
-          className="text-xl font-black text-slate-800 bg-transparent border-none outline-none focus:ring-0 p-0 w-full hover:bg-white/50 transition-colors rounded"
-        />
       </div>
 
       <div className="flex items-center gap-3">

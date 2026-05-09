@@ -32,6 +32,7 @@ function App() {
   const [pantallaActual, setPantallaActual] = useState("landing");
   const [mochilaSeleccionada, setMochilaSeleccionada] = useState(null);
   const [usuarioActual, setUsuarioActual] = useState(null);
+  const [sidebarAbierta, setSidebarAbierta] = useState(false);
 
   const {
     armario: armarioBackend,
@@ -317,16 +318,19 @@ function App() {
       <Sidebar
         listas={listas}
         idListaActiva={idListaActiva}
+        isOpen={sidebarAbierta}
+        onClose={() => setSidebarAbierta(false)}
         onSeleccionarLista={(id) => {
           setIdListaActiva(id);
           setPantallaActual("principal");
+          setSidebarAbierta(false);
         }}
         onCrearLista={crearNuevaListaReal}
         onBorrarLista={borrarListaReal}
         inventario={armarioBackend}
         onAñadirAlInventario={manejarNuevoItemReal}
         onEliminarDelInventario={eliminarItemArmarioBackend}
-        onIrAPrincipal={() => setPantallaActual("principal")}
+        onIrAPrincipal={() => { setPantallaActual("principal"); setSidebarAbierta(false); }}
       />
 
       <div className="flex-1 flex flex-col overflow-y-auto bg-slate-50">
@@ -378,6 +382,7 @@ function App() {
               onIrAExplorar={() => setPantallaActual("explorar")}
               onExportarPDF={manejarExportarPDF}
               onIrAConfiguracion={() => setPantallaActual("configuracion")}
+              onAbrirSidebar={() => setSidebarAbierta(true)}
             />
 
             <main className="p-6 max-w-4xl mx-auto w-full">

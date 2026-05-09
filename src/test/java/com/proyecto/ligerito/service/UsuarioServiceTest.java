@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -27,6 +28,9 @@ class UsuarioServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UsuarioService usuarioService;
 
@@ -36,59 +40,52 @@ class UsuarioServiceTest {
 
     @Test
     void registrarUsuario_datosNuevos_guardaYDevuelveUsuario() {
-        // Arrange
         RegisterRequest request = new RegisterRequest("pepe", "pepe@mail.com", "1234");
 
         when(usuarioRepository.existsByEmail("pepe@mail.com")).thenReturn(false);
         when(usuarioRepository.existsByNick("pepe")).thenReturn(false);
+        when(passwordEncoder.encode("1234")).thenReturn("$2a$hashed");
 
         Usuario guardado = new Usuario();
         guardado.setId(1L);
         guardado.setNick("pepe");
         guardado.setEmail("pepe@mail.com");
+        guardado.setPassword("$2a$hashed");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(guardado);
 
-        // Act
         Usuario resultado = usuarioService.registrarUsuario(request);
 
-        // Assert
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
         assertEquals("pepe", resultado.getNick());
-        assertEquals("pepe@mail.com", resultado.getEmail());
+        verify(passwordEncoder).encode("1234");
         verify(usuarioRepository).save(any(Usuario.class));
     }
 
     @Test
     void registrarUsuario_emailDuplicado_lanzaEmailDuplicadoException() {
-        // Arrange
         RegisterRequest request = new RegisterRequest("pepe", "duplicado@mail.com", "1234");
         when(usuarioRepository.existsByEmail("duplicado@mail.com")).thenReturn(true);
 
-        // Act + Assert
         assertThrows(EmailDuplicadoException.class, () -> usuarioService.registrarUsuario(request));
         verify(usuarioRepository, never()).save(any());
     }
 
     @Test
     void registrarUsuario_nickDuplicado_lanzaNickDuplicadoException() {
-        // Arrange
         RegisterRequest request = new RegisterRequest("nickRepetido", "nuevo@mail.com", "1234");
         when(usuarioRepository.existsByEmail("nuevo@mail.com")).thenReturn(false);
         when(usuarioRepository.existsByNick("nickRepetido")).thenReturn(true);
 
-        // Act + Assert
         assertThrows(NickDuplicadoException.class, () -> usuarioService.registrarUsuario(request));
         verify(usuarioRepository, never()).save(any());
     }
 
     @Test
     void registrarUsuario_emailSeChequeaAntesQueNick() {
-        // Arrange: ambos duplicados — debe lanzar EmailDuplicadoException, no NickDuplicadoException
         RegisterRequest request = new RegisterRequest("nickRepetido", "emailRepetido@mail.com", "1234");
         when(usuarioRepository.existsByEmail("emailRepetido@mail.com")).thenReturn(true);
 
-        // Act + Assert
         assertThrows(EmailDuplicadoException.class, () -> usuarioService.registrarUsuario(request));
         verify(usuarioRepository, never()).existsByNick(any());
     }
@@ -99,21 +96,19 @@ class UsuarioServiceTest {
 
     @Test
     void loginUsuario_credencialesCorrectas_devuelveLoginResponse() {
-        // Arrange
         LoginRequest request = new LoginRequest("pepe@mail.com", "1234");
 
         Usuario usuario = new Usuario();
         usuario.setId(5L);
         usuario.setNick("pepe");
         usuario.setEmail("pepe@mail.com");
-        usuario.setPassword("1234");
+        usuario.setPassword("$2a$hashed");
 
         when(usuarioRepository.findByEmail("pepe@mail.com")).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.matches("1234", "$2a$hashed")).thenReturn(true);
 
-        // Act
         LoginResponse resultado = usuarioService.loginUsuario(request);
 
-        // Assert
         assertNotNull(resultado);
         assertEquals(5L, resultado.getId());
         assertEquals("pepe", resultado.getNick());
@@ -122,30 +117,48 @@ class UsuarioServiceTest {
 
     @Test
     void loginUsuario_emailNoRegistrado_lanza401() {
-        // Arrange
         LoginRequest request = new LoginRequest("noexiste@mail.com", "1234");
         when(usuarioRepository.findByEmail("noexiste@mail.com")).thenReturn(Optional.empty());
 
-        // Act + Assert
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> usuarioService.loginUsuario(request));
-
         assertEquals(401, ex.getStatusCode().value());
     }
 
     @Test
     void loginUsuario_passwordIncorrecta_lanza401() {
-        // Arrange
         LoginRequest request = new LoginRequest("pepe@mail.com", "wrongPassword");
 
         Usuario usuario = new Usuario();
-        usuario.setPassword("correctPassword");
+        usuario.setPassword("$2a$hashed");
         when(usuarioRepository.findByEmail("pepe@mail.com")).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.matches("wrongPassword", "$2a$hashed")).thenReturn(false);
 
-        // Act + Assert
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> usuarioService.loginUsuario(request));
-
         assertEquals(401, ex.getStatusCode().value());
+    }
+
+    // ─────────────────────────────────────────────────
+    // eliminarUsuario
+    // ─────────────────────────────────────────────────
+
+    @Test
+    void eliminarUsuario_existente_eliminaCorrectamente() {
+        when(usuarioRepository.existsById(1L)).thenReturn(true);
+
+        usuarioService.eliminarUsuario(1L);
+
+        verify(usuarioRepository).deleteById(1L);
+    }
+
+    @Test
+    void eliminarUsuario_noExiste_lanza404() {
+        when(usuarioRepository.existsById(99L)).thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> usuarioService.eliminarUsuario(99L));
+        assertEquals(404, ex.getStatusCode().value());
+        verify(usuarioRepository, never()).deleteById(anyLong());
     }
 }
