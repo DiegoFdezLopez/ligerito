@@ -1,11 +1,13 @@
 package com.proyecto.ligerito.dto;
 
+import lombok.Data;
+
 /**
  * DTO para mostrar un item dentro del detalle público de una mochila.
  */
-
+@Data
 public class ItemPublicoResponse {
-        
+
     private Long id;
     private String nombre;
     private Integer peso;
@@ -16,9 +18,18 @@ public class ItemPublicoResponse {
 
     public ItemPublicoResponse() {
     }
-    
-    public ItemPublicoResponse(Long id, String nombre, Integer peso, Integer cantidad, String categoriaNombre,
-            String descripcion, String enlace) {
+
+    /**
+     * @param id              identificador único del ítem en la mochila
+     * @param nombre          nombre del ítem
+     * @param peso            peso unitario en gramos
+     * @param cantidad        unidades incluidas en la mochila
+     * @param categoriaNombre nombre de la categoría a la que pertenece
+     * @param descripcion     descripción del ítem; puede ser {@code null}
+     * @param enlace          URL de referencia o compra; puede ser {@code null}
+     */
+    public ItemPublicoResponse(Long id, String nombre, Integer peso, Integer cantidad,
+            String categoriaNombre, String descripcion, String enlace) {
         this.id = id;
         this.nombre = nombre;
         this.peso = peso;
@@ -27,62 +38,4 @@ public class ItemPublicoResponse {
         this.descripcion = descripcion;
         this.enlace = enlace;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Integer getPeso() {
-        return peso;
-    }
-
-    public void setPeso(Integer peso) {
-        this.peso = peso;
-    }
-
-    public Integer getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(Integer cantidad) {
-        this.cantidad = cantidad;
-    }
-
-    public String getCategoriaNombre() {
-        return categoriaNombre;
-    }
-
-    public void setCategoriaNombre(String categoriaNombre) {
-        this.categoriaNombre = categoriaNombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getEnlace() {
-        return enlace;
-    }
-
-    public void setEnlace(String enlace) {
-        this.enlace = enlace;
-    }
-
-    
 }

@@ -1,11 +1,14 @@
 package com.proyecto.ligerito.dto;
 
+import lombok.Data;
+
 /**
  * DTO para la actualización parcial de un item de armario.
  * Todos los campos son opcionales; solo se aplicarán los que no sean {@code null}.
  */
+@Data
 public class ItemArmarioPatchRequest {
-    
+
     private Integer peso;
     private String descripcion;
     private String enlace;
@@ -23,34 +26,4 @@ public class ItemArmarioPatchRequest {
         this.descripcion = descripcion;
         this.enlace = enlace;
     }
-
-    public Integer getPeso() {
-        return peso;
-    }
-
-    public void setPeso(Integer peso) {
-        this.peso = peso;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getEnlace() {
-        return enlace;
-    }
-
-    public void setEnlace(String enlace) {
-        this.enlace = enlace;
-    }
-
-    
-    
-    
-
-
 }

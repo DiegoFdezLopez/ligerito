@@ -1,62 +1,32 @@
 package com.proyecto.ligerito.dto;
 
-public class MochilaPublicaResponse {
-    
-private Long id;
-private String nombre;
-private String nickUsuario;
-private Integer pesoTotal;
-
-public MochilaPublicaResponse() {
-}
+import lombok.Data;
 
 /**
- *
- * @param id identificador unico de la mochila publica
- * @param nombre nombre de la mochila publica
- * @param nickUsuario nombre del creador de esta mochila
- * @param pesoTotal suma del peso de los items que contiene la mochila
+ * DTO de respuesta para mostrar una mochila pública en el listado general.
+ * Incluye el nick del creador y el peso total calculado de todos sus ítems.
  */
-public MochilaPublicaResponse(Long id, String nombre, String nickUsuario, Integer pesoTotal) {
-    this.id = id;
-    this.nombre = nombre;
-    this.nickUsuario = nickUsuario;
-    this.pesoTotal = pesoTotal;
-}
+@Data
+public class MochilaPublicaResponse {
 
-public Long getId() {
-    return id;
-}
+    private Long id;
+    private String nombre;
+    private String nickUsuario;
+    private Integer pesoTotal;
 
-public void setId(Long id) {
-    this.id = id;
-}
+    public MochilaPublicaResponse() {
+    }
 
-public String getNombre() {
-    return nombre;
-}
-
-public void setNombre(String nombre) {
-    this.nombre = nombre;
-}
-
-public String getNickUsuario() {
-    return nickUsuario;
-}
-
-public void setNickUsuario(String nickUsuario) {
-    this.nickUsuario = nickUsuario;
-}
-
-public Integer getPesoTotal() {
-    return pesoTotal;
-}
-
-public void setPesoTotal(Integer pesoTotal) {
-    this.pesoTotal = pesoTotal;
-} 
-
-
-
-
+    /**
+     * @param id          identificador único de la mochila pública
+     * @param nombre      nombre de la mochila
+     * @param nickUsuario nick del usuario que creó la mochila
+     * @param pesoTotal   suma del peso de todos los ítems de la mochila, en gramos
+     */
+    public MochilaPublicaResponse(Long id, String nombre, String nickUsuario, Integer pesoTotal) {
+        this.id = id;
+        this.nombre = nombre;
+        this.nickUsuario = nickUsuario;
+        this.pesoTotal = pesoTotal;
+    }
 }

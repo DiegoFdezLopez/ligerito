@@ -1,10 +1,13 @@
 package com.proyecto.ligerito.dto;
 
 import java.util.List;
+import lombok.Data;
 
 /**
  * DTO para mostrar el detalle público de una mochila compartida.
+ * Incluye el listado de categorías y todos los ítems con su información completa.
  */
+@Data
 public class MochilaPublicaDetalleResponse {
 
     private Long id;
@@ -17,6 +20,14 @@ public class MochilaPublicaDetalleResponse {
     public MochilaPublicaDetalleResponse() {
     }
 
+    /**
+     * @param id          identificador único de la mochila
+     * @param nombre      nombre de la mochila
+     * @param nickUsuario nick del usuario que creó la mochila
+     * @param pesoTotal   peso total de todos los ítems en gramos
+     * @param categorias  lista de nombres de categorías presentes en la mochila
+     * @param items       lista de ítems con toda su información
+     */
     public MochilaPublicaDetalleResponse(Long id, String nombre, String nickUsuario, Integer pesoTotal,
             List<String> categorias, List<ItemPublicoResponse> items) {
         this.id = id;
@@ -26,53 +37,4 @@ public class MochilaPublicaDetalleResponse {
         this.categorias = categorias;
         this.items = items;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getNickUsuario() {
-        return nickUsuario;
-    }
-
-    public void setNickUsuario(String nickUsuario) {
-        this.nickUsuario = nickUsuario;
-    }
-
-    public Integer getPesoTotal() {
-        return pesoTotal;
-    }
-
-    public void setPesoTotal(Integer pesoTotal) {
-        this.pesoTotal = pesoTotal;
-    }
-
-    public List<String> getCategorias() {
-        return categorias;
-    }
-
-    public void setCategorias(List<String> categorias) {
-        this.categorias = categorias;
-    }
-
-    public List<ItemPublicoResponse> getItems() {
-        return items;
-    }
-
-    public void setItems(List<ItemPublicoResponse> items) {
-        this.items = items;
-    }
-
 }

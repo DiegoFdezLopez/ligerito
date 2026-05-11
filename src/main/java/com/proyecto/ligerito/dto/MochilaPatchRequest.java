@@ -1,10 +1,13 @@
 package com.proyecto.ligerito.dto;
 
+import lombok.Data;
+
 /**
  * DTO para la actualización parcial de una mochila.
  * Todos los campos son opcionales; solo se aplicarán los que no sean {@code null}.
  * El nombre además se ignora si está en blanco.
  */
+@Data
 public class MochilaPatchRequest {
 
     private String nombre;
@@ -19,22 +22,6 @@ public class MochilaPatchRequest {
      */
     public MochilaPatchRequest(String nombre, Boolean esPublica) {
         this.nombre = nombre;
-        this.esPublica = esPublica;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Boolean getEsPublica() {
-        return esPublica;
-    }
-
-    public void setEsPublica(Boolean esPublica) {
         this.esPublica = esPublica;
     }
 }

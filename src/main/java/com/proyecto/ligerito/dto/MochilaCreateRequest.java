@@ -2,11 +2,13 @@ package com.proyecto.ligerito.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 /**
  * DTO con los datos necesarios para crear una nueva mochila.
  * Los tres campos son obligatorios: nombre, visibilidad e ID del usuario propietario.
  */
+@Data
 public class MochilaCreateRequest {
 
     @NotBlank(message = "El nombre de la mochila no puede estar vacío")
@@ -29,30 +31,6 @@ public class MochilaCreateRequest {
     public MochilaCreateRequest(String nombre, Boolean esPublica, Long usuarioId) {
         this.nombre = nombre;
         this.esPublica = esPublica;
-        this.usuarioId = usuarioId;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public Boolean getEsPublica() {
-        return esPublica;
-    }
-
-    public void setEsPublica(Boolean esPublica) {
-        this.esPublica = esPublica;
-    }
-
-    public Long getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Long usuarioId) {
         this.usuarioId = usuarioId;
     }
 }
