@@ -11,7 +11,7 @@ public class MochilaResponse {
 
     private Long id;
     private String nombre;
-    private Boolean esPublica;
+    private boolean esPublica;
 
     public MochilaResponse() {
     }
@@ -21,7 +21,7 @@ public class MochilaResponse {
      * @param nombre    nombre de la mochila
      * @param esPublica {@code true} si la mochila es visible para otros usuarios
      */
-    public MochilaResponse(Long id, String nombre, Boolean esPublica) {
+    public MochilaResponse(Long id, String nombre, boolean esPublica) {
         this.id = id;
         this.nombre = nombre;
         this.esPublica = esPublica;

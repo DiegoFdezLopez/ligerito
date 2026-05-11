@@ -6,7 +6,7 @@ Aplicación web para gestionar el equipaje de actividades de montaña y larga di
 
 **Backend**
 - Java 21 · Spring Boot 4 · Spring Data JPA / Hibernate · Spring Security
-- MySQL 8+
+- MySQL 9.0
 
 **Frontend**
 - React 19 · Vite · Tailwind CSS
@@ -14,20 +14,18 @@ Aplicación web para gestionar el equipaje de actividades de montaña y larga di
 ## Arranque rápido
 
 ### Requisitos
+- Docker Desktop
 - Java JDK 21+
-- Maven 3.9+
-- MySQL 8+ en ejecución local
+- Maven 3.9+ (o usar el wrapper `mvnw` incluido)
 - Node.js 18+ (solo para el frontend)
 
-### 1. Configurar MySQL
+### 1. Arrancar la base de datos
 
-Crear el usuario y la base de datos (la BD se crea automáticamente al arrancar si el usuario tiene permisos):
-
-```sql
-CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON backpack_db.* TO 'user'@'localhost';
-FLUSH PRIVILEGES;
+```bash
+docker compose up db
 ```
+
+MySQL arranca en `localhost:3306`. La base de datos `backpack_db` se crea automáticamente.
 
 ### 2. Arrancar el backend
 
@@ -40,8 +38,6 @@ FLUSH PRIVILEGES;
 | API REST | http://localhost:8080 |
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 
-Hibernate crea las tablas automáticamente al arrancar (`ddl-auto=update`).
-
 ### 3. Arrancar el frontend
 
 ```bash
@@ -51,6 +47,10 @@ npm run dev
 ```
 
 Frontend disponible en: http://localhost:5173
+
+## Colección Postman
+
+El archivo `ligerito-api.postman_collection.json` en la raíz del proyecto contiene todos los endpoints de la API listos para importar en Postman (File → Import).
 
 ## Estructura del proyecto
 
@@ -66,6 +66,8 @@ ligerito/
 │   └── config/         # Seguridad (Spring Security)
 ├── src/test/           # Tests unitarios (JUnit 5 + Mockito)
 ├── frontend/           # Aplicación React
+├── ligerito-api.postman_collection.json
+├── compose.yaml        # Docker Compose (backend + MySQL)
 └── Dockerfile
 ```
 
