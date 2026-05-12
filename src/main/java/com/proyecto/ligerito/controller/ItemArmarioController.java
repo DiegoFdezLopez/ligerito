@@ -26,6 +26,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para la gestión del armario personal del usuario.
+ * <p>
+ * Expone los endpoints bajo {@code /api/armario} y delega la lógica
+ * de negocio en {@link com.proyecto.ligerito.service.ItemArmarioService}.
+ * El armario representa el inventario personal de equipamiento del usuario,
+ * desde el que se seleccionan ítems para incluir en las mochilas.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/armario")
 @CrossOrigin(origins = { "http://localhost:5173", "http://127.0.0.1:5173" })

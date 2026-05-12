@@ -21,6 +21,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para la gestión de categorías de una mochila.
+ * <p>
+ * Expone los endpoints bajo {@code /api/categorias} y delega la lógica
+ * de negocio en {@link com.proyecto.ligerito.service.CategoriaService}.
+ * Las categorías permiten organizar los ítems dentro de una mochila
+ * (por ejemplo: ropa, cocina, refugio).
+ * </p>
+ */
 @Tag(name = "Categoria", description = "Categorias para organizar los item de la mochila")
 @RestController
 @RequestMapping("/api/categorias")

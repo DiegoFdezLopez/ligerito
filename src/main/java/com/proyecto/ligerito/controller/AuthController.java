@@ -18,6 +18,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para la autenticación de usuarios.
+ * <p>
+ * Expone los endpoints de registro e inicio de sesión bajo {@code /auth}
+ * y delega la lógica de negocio en {@link com.proyecto.ligerito.service.UsuarioService}.
+ * Ambos endpoints son públicos y no requieren autenticación previa.
+ * </p>
+ */
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Autenticación", description = "Registro e inicio de sesión de usuarios")

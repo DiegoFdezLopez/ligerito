@@ -25,6 +25,15 @@ import com.proyecto.ligerito.dto.MochilaPublicaResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para la gestión de mochilas.
+ * <p>
+ * Expone los endpoints bajo {@code /api/mochilas} y delega la lógica
+ * de negocio en {@link com.proyecto.ligerito.service.MochilaService}.
+ * Incluye operaciones CRUD sobre las mochilas de un usuario y consulta
+ * de mochilas públicas de la comunidad.
+ * </p>
+ */
 @Tag(name = "Mochila", description = "Gestión de mochilas del usuario")
 @RestController
 @RequestMapping("/api/mochilas")
