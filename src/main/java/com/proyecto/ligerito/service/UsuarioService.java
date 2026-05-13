@@ -59,14 +59,6 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    /**
-     * Autentica a un usuario mediante email y contraseña.
-     * La contraseña se compara en texto plano contra la almacenada en base de datos.
-     *
-     * @param request credenciales del usuario (email y contraseña)
-     * @return {@link LoginResponse} con el ID, nick y email del usuario autenticado
-     * @throws ResponseStatusException 401 si el email no existe o la contraseña es incorrecta
-     */
     public void eliminarUsuario(Long id) {
         if (!usuarioRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
@@ -74,6 +66,14 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
+    /**
+     * Autentica a un usuario mediante email y contraseña.
+     * La contraseña se verifica con BCrypt contra el hash almacenado en base de datos.
+     *
+     * @param request credenciales del usuario (email y contraseña)
+     * @return {@link LoginResponse} con el ID, nick y email del usuario autenticado
+     * @throws ResponseStatusException 401 si el email no existe o la contraseña es incorrecta
+     */
     public LoginResponse loginUsuario(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"));
