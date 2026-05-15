@@ -88,6 +88,31 @@ ligerito/
 ./mvnw test
 ```
 
+## Despliegue en Heroku
+
+### Requisitos previos
+- Cuenta en Heroku y CLI instalado (`heroku login`)
+- Add-on de base de datos MySQL compatible (por ejemplo JawsDB)
+
+### Variables de entorno
+
+Configura estas variables en el panel de Heroku (Settings → Config Vars):
+
+| Variable | Descripción |
+|---|---|
+| `SPRING_DATASOURCE_URL` | URL JDBC de la base de datos |
+| `SPRING_DATASOURCE_USERNAME` | Usuario de la base de datos |
+| `SPRING_DATASOURCE_PASSWORD` | Contraseña de la base de datos |
+
+### Despliegue
+
+```bash
+heroku create nombre-de-tu-app
+git push heroku main
+```
+
+El `Procfile` incluido arranca la aplicación con el perfil `prod` y el puerto asignado por Heroku automáticamente.
+
 ## Autor
 
 Diego Fernández López

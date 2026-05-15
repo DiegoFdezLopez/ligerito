@@ -46,9 +46,7 @@ export default function Sidebar({
         className="p-5 pb-3 flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer w-full text-left"
         aria-label="Ir a la pantalla principal"
       >
-        <div className="bg-white/10 p-1.5 rounded-lg text-white" aria-hidden="true">
-          <span className="material-symbols-outlined text-xl">scale</span>
-        </div>
+        <img src="/LogoBlanco.png" alt="Ligerito logo" className="w-12 h-12 object-contain" />
         <h1 className="text-xl font-black tracking-tighter">Ligerito.</h1>
       </button>
 

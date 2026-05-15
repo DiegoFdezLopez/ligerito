@@ -29,9 +29,7 @@ export default function Registro({ onRegistro, onIrALogin }) {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-10 border border-slate-100">
         
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-slate-800 p-3 rounded-2xl mb-4 text-white">
-            <span className="material-symbols-outlined text-4xl">person_add</span>
-          </div>
+          <img src="/LogoAzul.png" alt="Ligerito logo" className="w-16 h-16 object-contain mb-4" />
           <h1 className="text-3xl font-bold tracking-tighter">Únete a Ligerito</h1>
           <p className="text-slate-400 text-sm mt-2 text-center">
             Empieza a organizar tus aventuras sin peso extra

@@ -6,8 +6,9 @@ export default function Landing({ onIrLogin, onIrRegistro }) {
     <div className="bg-slate-50 text-slate-900 overflow-x-hidden">
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
         <nav className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-4">
-          <div className="text-2xl font-extrabold tracking-tighter text-blue-900">
-            Ligerito
+          <div className="flex items-center gap-2">
+            <img src="/LogoAzul.png" alt="Ligerito logo" className="w-8 h-8 object-contain" />
+            <span className="text-2xl font-extrabold tracking-tighter text-blue-900">Ligerito</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">

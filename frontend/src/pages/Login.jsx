@@ -30,9 +30,7 @@ export default function Login({ onLogin, onIrARegistro }) {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-10 border border-slate-100">
         {/* LOGO Y CABECERA */}
         <div className="flex flex-col items-center mb-10">
-          <div className="bg-slate-800 p-3 rounded-2xl mb-4 text-white shadow-lg">
-            <span className="material-symbols-outlined text-4xl">scale</span>
-          </div>
+          <img src="/LogoAzul.png" alt="Ligerito logo" className="w-16 h-16 object-contain mb-4" />
           <h1 className="text-3xl font-bold tracking-tighter text-slate-800">
             Ligerito<span className="text-blue-500">.</span>
           </h1>
