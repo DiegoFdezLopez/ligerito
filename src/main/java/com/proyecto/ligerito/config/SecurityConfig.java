@@ -39,7 +39,9 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(
                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**",
-                "/api-docs", "/api-docs/**"
+                "/api-docs", "/api-docs/**",
+                "/", "/index.html", "/assets/**", "/favicon.ico",
+                "/*.ico", "/*.png", "/*.svg", "/*.webmanifest", "/*.js", "/*.css"
         );
     }
 
@@ -51,7 +53,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 );
 
         return http.build();
